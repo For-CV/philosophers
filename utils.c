@@ -35,6 +35,7 @@ int	ft_strlen(char *s)
 {
 	int	i;
 
+	i = 0;
 	if (!s)
 		return (0);
 	while (s[i])
@@ -76,8 +77,8 @@ int	ft_atoi(char *s)
 		r = r * 10 + (s[i] - '0');
 		i++;
 	}
+	// printf("len = %d, i = %d\n", ft_strlen(s), i);
 	if (i < ft_strlen(s))
 		return (-1);
-	printf("r = %d\n", r);
 	return (r);
 }
