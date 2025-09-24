@@ -62,3 +62,17 @@ int main(void)
 	t = tv.tv_usec - t;
 	printf("final time = %ld ms\n", t);
 }
+
+// int	main()
+// {
+// 	long	t = 214748364912312;
+// 	char c = 1;
+// 	int	i = 7;
+// 	printf("%ld\n", t);
+// 	// while (i >= 0)
+// 	// {
+// 	// 	printf("%d", (c >> i) & 1);
+// 	// 	i--;
+// 	// }
+// 	// printf("\n");
+// }

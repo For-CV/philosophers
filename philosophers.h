@@ -21,6 +21,8 @@ typedef struct s_data
 	int				n_to_eat;
 }	t_data;
 
+
+
 void	*ft_calloc(size_t nmemb, size_t size);
 int	ft_atoi(char *s);
 int	ft_strlen(char *s);

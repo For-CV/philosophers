@@ -1,5 +1,25 @@
 #include "philosophers.h"
 
+void	*ft_philo(void *arg)
+{
+	t_data	*data;
+
+	data = (t_data *)arg;
+	while (1)
+	{
+
+	}
+}
+
+int	ft_init_philo(t_data *data)
+{
+	pthread_mutex_t	*forks;
+
+	forks = (pthread_mutex_t *)ft_calloc(data->n_philo, sizeof(pthread_mutex_t));
+	if (!forks)
+		return(1);
+}
+
 int	main(int argc, char **argv)
 {
 	t_data	*data;
@@ -10,7 +30,8 @@ int	main(int argc, char **argv)
 	if (!data)
 		return (write(2, "malloc failure\n", 15), 1);
 	if (!ft_parse(data, argv))
-		return ( free(data), 1);
+		return (free(data), 1);
+	ft_init_philo(data);
 	printf("n_philo = %d\n", data->n_philo);
 	printf("n_to_eat = %d\n", data->n_to_eat);
 	printf("t_to_die = %u\n", data->t_to_die);
