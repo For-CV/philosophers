@@ -2,6 +2,7 @@ NAME = philo
 SRC = philosophers.c\
 	utils.c\
 	parsing.c\
+	timeft.c\
 	
 OBJ = $(SRC:.c=.o)
 CFLAGS += -g -O1 -pthread #-Wall -Wextra -Werror -fsanitize=thread

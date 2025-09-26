@@ -27,7 +27,7 @@ void	ft_print_list(t_philo *l_philo)
 
 
 
-// int	ft_collect_dead(t_data *data, pthread_t **threads)
+// int	ft_collect_dead(t_arg *data, pthread_t **threads)
 // {
 // 	pthread_t	*philo;
 
@@ -51,26 +51,33 @@ void	*ft_philo(void *arg)
 	int		philo;
 	int		prev_philo;
 	int		i;
+	struct timeval	*tv;	
 
+	tv = (struct timeval *)ft_calloc(1, sizeof(struct timeval));
 	philo_d = (t_philo *)arg;
 	if (philo_d->philo > 1)
 		prev_philo = philo_d->philo - 1;
 	else
 		prev_philo = philo_d->n_philos - 1;
 	i = 0;
+	if (gettimeofday(tv, NULL))
+		return (free(tv), NULL);
 	while (i < philo_d->n_to_eat)
 	{
-		// pthread_mutex_lock(&(philo_d->forks[prev_philo]));
-		// pthread_mutex_lock(&(philo_d->forks[philo]));
-		ft_data_printer(philo_d);
-		printf("times eaten = %d\n", i + 1);
-		printf("\n");
-		// pthread_mutex_unlock(&(philo_d->forks[philo]));
-		// pthread_mutex_unlock(&(philo_d->forks[prev_philo]));
-		sleep(1);
+		pthread_mutex_lock(&(philo_d->forks[prev_philo]));
+		pthread_mutex_lock(&(philo_d->forks[philo]));
+		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, FORK))
+			return (free(tv), NULL);
+		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, EAT))
+			return (free(tv), NULL);
+		pthread_mutex_unlock(&(philo_d->forks[philo]));
+		pthread_mutex_unlock(&(philo_d->forks[prev_philo]));
+		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, SLEEP))
+			return (free(tv), NULL);
+		usleep(philo_d->t_to_sleep);
 		i++;
 	}
-	return (NULL);
+	return (free(tv), NULL);
 }
  
 pthread_mutex_t		*ft_init_forks(int n)
@@ -88,7 +95,7 @@ pthread_mutex_t		*ft_init_forks(int n)
 	return (forks);
 }
 
-t_philo	*ft_init_list(t_data *data, pthread_mutex_t *forks, pthread_mutex_t *printer)
+t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_t *printer)
 {
 	t_philo *start;
 	t_philo *node;
@@ -117,10 +124,12 @@ t_philo	*ft_init_list(t_data *data, pthread_mutex_t *forks, pthread_mutex_t *pri
 			return (ft_free_list(&start), NULL);
 		node = node->next;
 	}
+	if (ft_set_timer(start))
+		return (ft_free_list(&start), NULL);
 	return (node ->next = start, start);
 }
 
-int	ft_create_philos(t_data *data)
+int	ft_create_philos(t_arg *data)
 {
 	pthread_t		*philo;
 	t_philo			*l_philo;
@@ -157,20 +166,15 @@ int	ft_create_philos(t_data *data)
 
 int	main(int argc, char **argv)
 {
-	t_data	*data;
+	t_arg	*data;
 
 	if (argc < 5 || argc > 6)
 		return (write(2, ERR_MSG, 128), 1);
-	data = (t_data *)ft_calloc(1, sizeof(t_data));
+	data = (t_arg *)ft_calloc(1, sizeof(t_arg));
 	if (!data)
 		return (write(2, "malloc failure\n", 15), 1);
 	if (!ft_parse(data, argv))
 		return (free(data), 1);
 	ft_create_philos(data);
-	printf("n_philo = %d\n", data->n_philos);
-	printf("n_to_eat = %d\n", data->n_to_eat);
-	printf("t_to_die = %u\n", data->t_to_die);
-	printf("t_to_eat = %u\n", data->t_to_eat);
-	printf("t_to_sleep = %u\n", data->t_to_sleep);
 	free(data);
 }

@@ -25,11 +25,12 @@ static int	ft_skip_space(char *s)
 	return (i * sign);
 }
 
-long	ft_atoi(char *s)
+int	ft_atoi(char *s)
 {
-	int					i;
-	long				t;
-	unsigned int		r;
+	int		i;
+	long	t;
+	int		r;
+
 	if (!s)
 		return (-1);
 	i = ft_skip_space(s);
@@ -40,7 +41,7 @@ long	ft_atoi(char *s)
 	while (s[i] >= '0' && s[i] <= '9')
 	{
 		t = t * 10 + (s[i] + '0');
-		if (t > (UINT_MAX / 1000))
+		if (t > INT_MAX)
 			return (-1);
 		r = r * 10 + (s[i] - '0');
 		i++;
@@ -50,30 +51,30 @@ long	ft_atoi(char *s)
 	return (r);
 }
 
-int	ft_parse(t_data *data, char **argv)
+int	ft_parse(t_arg *arg, char **argv)
 {
-	unsigned int	t;
+	int	t;
 
-	data->n_to_eat = 0;
-	data->n_philos = ft_atoi(argv[1]);
-	if (data->n_philos < 0)
+	arg->n_to_eat = 0;
+	arg->n_philos = ft_atoi(argv[1]);
+	if (arg->n_philos < 0)
 		return (write(2, "number_philo must be an int\n", 28), 0);
 	t = ft_atoi(argv[2]);
 	if (t < 0)
 		return (write(2, "time_to_die must be an int\n", 27), 0);
-	data->t_to_die = (__useconds_t)(t * 1000);
+		arg->t_to_die = (__useconds_t)t;
 	t = ft_atoi(argv[3]);
 	if (t < 0)
 		return (write(2, "time_to_eat must be an int\n", 27), 0);
-	data->t_to_eat = (__useconds_t)(t * 1000);
+		arg->t_to_eat = (__useconds_t)t;
 	t = ft_atoi(argv[4]);
 	if (t < 0)
 		return (write(2, "t_to_sleep must be an int\n", 26), 0);
-	data->t_to_sleep = (__useconds_t)(t * 1000);
+		arg->t_to_sleep = (__useconds_t)t;
 	if (argv[5])
 	{
-		data->n_to_eat = ft_atoi(argv[5]);
-		if (data->n_to_eat < 0)
+		arg->n_to_eat = ft_atoi(argv[5]);
+		if (arg->n_to_eat < 0)
 			return (write(2, "number_to_eat must be an int\n", 29), 0);
 	}
 	return (1);

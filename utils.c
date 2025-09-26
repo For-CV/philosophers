@@ -59,13 +59,3 @@ void	ft_free_list(t_philo **list)
 	}
 	return ;
 }
-
-void	ft_data_printer(t_philo *philo_d)
-{
-	if (!philo_d)
-		return ;
-	pthread_mutex_lock(philo_d->printer);
-	printf("philo_id = %d\n", philo_d->philo);
-	pthread_mutex_unlock(philo_d->printer);
-	return ;
-}

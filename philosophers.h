@@ -12,16 +12,19 @@
 
 # define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die, time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
 # define DEAD_MSG "All philosophers are dead\n"
+# define FORK 1
+# define EAT 2
+# define SLEEP 3
+# define THINK 4
 
-typedef struct s_data
+typedef struct s_arg
 {
-	pthread_mutex_t	global;
 	int				n_philos;
 	__useconds_t	t_to_die;
 	__useconds_t	t_to_eat;
 	__useconds_t	t_to_sleep;
 	int				n_to_eat;
-}	t_data;
+}	t_arg;
 
 typedef struct	s_philo
 {
@@ -35,14 +38,17 @@ typedef struct	s_philo
 	pthread_mutex_t	*forks;
 	int				dead;
 	int				n_dead;
+	suseconds_t		micro_t;
+	time_t			big_t;
 	struct s_philo	*next;
 }	t_philo;
 
 void	*ft_calloc(size_t nmemb, size_t size);
 void	ft_free_list(t_philo **start);
-void	ft_data_printer(t_philo *philo_d);
-long	ft_atoi(char *s);
+int	ft_atoi(char *s);
 int		ft_strlen(char *s);
-int		ft_parse(t_data *data, char **argv);
+int		ft_parse(t_arg *data, char **argv);
+int		ft_time_printer(suseconds_t micro_t, time_t big_t, t_philo *philo, int act);
+int		ft_set_timer(t_philo *node);
 
 #endif
