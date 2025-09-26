@@ -25,6 +25,7 @@ typedef struct s_data
 
 typedef struct	s_philo
 {
+	pthread_mutex_t	*printer;
 	int				n_philos;
 	int				philo;
 	__useconds_t	t_to_die;
@@ -39,6 +40,7 @@ typedef struct	s_philo
 
 void	*ft_calloc(size_t nmemb, size_t size);
 void	ft_free_list(t_philo **start);
+void	ft_data_printer(t_philo *philo_d);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_data *data, char **argv);
