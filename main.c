@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <stdatomic.h>
+# include <limits.h>
 
 // typedef struct s_data
 // {
@@ -66,6 +67,6 @@
 
 int	main()
 {
-	atomic_int	n = 1;
-	printf("size = %zu, n = %d\n", sizeof(atomic_int), n);
+int e = 1U;
+	printf("size = %zu, INT_MAX = %u, UINTMAX = %ld\n", sizeof(long), 1U, UINT_MAX);
 }

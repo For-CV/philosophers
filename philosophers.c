@@ -122,10 +122,11 @@ t_philo	*ft_init_list(t_data *data, pthread_mutex_t *forks, pthread_mutex_t *pri
 
 int	ft_create_philos(t_data *data)
 {
-	pthread_t	*philo;
-	t_philo		*l_philo;
+	pthread_t		*philo;
+	t_philo			*l_philo;
 	pthread_mutex_t	*printer;
-	int			i;
+	int				i;
+
 	printer = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
 	l_philo = ft_init_list(data, ft_init_forks(data->n_philos), printer);
 	philo = (pthread_t *)ft_calloc(data->n_philos, sizeof(pthread_t));
