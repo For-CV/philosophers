@@ -11,7 +11,7 @@
 # include <limits.h>
 
 # define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die, time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
-# define DEAD_MSG "All philosophers are dead\n"
+# define COLL_MSG "All philosophers are collected\n"
 # define FORK 1
 # define EAT 2
 # define SLEEP 3
@@ -37,7 +37,6 @@ typedef struct	s_philo
 	int				n_to_eat;
 	pthread_mutex_t	*forks;
 	int				dead;
-	int				n_dead;
 	suseconds_t		micro_t;
 	time_t			big_t;
 	struct s_philo	*next;
@@ -45,7 +44,7 @@ typedef struct	s_philo
 
 void	*ft_calloc(size_t nmemb, size_t size);
 void	ft_free_list(t_philo **start);
-int	ft_atoi(char *s);
+int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);
 int		ft_time_printer(suseconds_t micro_t, time_t big_t, t_philo *philo, int act);

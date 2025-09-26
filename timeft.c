@@ -10,12 +10,12 @@ int	ft_set_timer(t_philo *node)
 		return (1);
 	i = 0;
 	if (gettimeofday(tv, NULL))
-		return (1);
+		return (free(tv), 1);
 	while (node)
 	{
 		node->big_t = tv->tv_sec;
 		node->micro_t = tv->tv_usec;
-		printf("node->big_t = %ld, node->micro_t = %ld\n", node->big_t, node->micro_t);
+		// printf("node->big_t = %ld, node->micro_t = %ld\n", node->big_t, node->micro_t);
 		node = node->next;
 	}
 	return (free(tv), 0);
@@ -32,7 +32,7 @@ int	ft_time_printer(suseconds_t micro_t, time_t big_t, t_philo *philo, int act)
 	if (!tv)
 		return (1);
 	if (gettimeofday(tv, NULL))
-		return (1);
+		return (free(tv), 1);
 	sec = (tv->tv_sec - big_t) * 1000;
 	t = (sec + (tv->tv_usec - micro_t) / 1000);
 	pthread_mutex_lock(philo->printer);
