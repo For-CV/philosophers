@@ -56,8 +56,8 @@ int	ft_parse(t_data *data, char **argv)
 	int	t;
 
 	data->n_to_eat = 0;
-	data->n_philo = ft_atoi(argv[1]);
-	if (data->n_philo < 0)
+	data->n_philos = ft_atoi(argv[1]);
+	if (data->n_philos < 0)
 		return (write(2, "number_philo must be an int\n", 28), 0);
 	t = ft_atoi(argv[2]);
 	if (t < 0)

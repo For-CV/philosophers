@@ -35,3 +35,27 @@ int	ft_strlen(char *s)
 		i++;
 	return (i);
 }
+
+void	ft_free_list(t_philo **list)
+{
+	t_philo	*philo;
+	t_philo	*start;
+	t_philo	*next;
+
+	if (!list || !*list)
+		return ;
+	philo = *list;
+	start = *list;
+	free(philo->forks);
+	philo->forks = NULL;
+	while  (philo)
+	{
+		next = philo->next;
+		free(philo);
+		philo = NULL;
+		philo = next;
+		if (philo == start)
+			return ;
+	}
+	return ;
+}
