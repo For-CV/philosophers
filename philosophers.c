@@ -1,6 +1,6 @@
 #include "philosophers.h"
 
-void	ft_print_list(t_philo *l_philo)
+static void	ft_print_list(t_philo *l_philo)
 {
 	t_philo	*start;
 	
@@ -58,7 +58,8 @@ static int	ft_collect_dead(t_philo *l_philo, pthread_t **threads)
 static void	ft_unlock(t_philo *philo_d, int first, int second)
 {
 	pthread_mutex_unlock(&(philo_d->forks[second]));
-	pthread_mutex_unlock(&(philo_d->forks[first]));
+	if (philo_d->n_philos > 1)
+		pthread_mutex_unlock(&(philo_d->forks[first]));
 }
 
 static void	*ft_philo(void *arg)
@@ -70,6 +71,7 @@ static void	*ft_philo(void *arg)
 	int		second_fork;
 	int		i;
 	struct timeval	*tv;
+	long	t;
 
 	tv = (struct timeval *)ft_calloc(1, sizeof(struct timeval));
 	if (!tv)
@@ -91,26 +93,31 @@ static void	*ft_philo(void *arg)
 		second_fork = philo;
 	}
 	i = 0;
-	if (gettimeofday(tv, NULL))
-		return (free(tv), NULL);
 	while (i < philo_d->n_to_eat)
 	{
 		pthread_mutex_lock(&(philo_d->forks[first_fork]));
-		pthread_mutex_lock(&(philo_d->forks[second_fork]));
-		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, FORK))
+		if (philo_d->n_philos > 1)
+			pthread_mutex_lock(&(philo_d->forks[second_fork]));
+		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, FORK);
+		if (t < 0)
 			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, first_fork, second_fork), NULL);
-		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, EAT))
+		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, EAT);
+		if (t < 0)
 			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, first_fork, second_fork), NULL);
 		ft_unlock(philo_d, first_fork, second_fork);
-		if (ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, SLEEP))
+		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, SLEEP);
+		if (t < 0)
 			return (free(tv), philo_d->dead = 1, NULL);
 		usleep(philo_d->t_to_sleep);
+		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, THINK);
+		if (t < 0)
+			return (free(tv), philo_d->dead = 1, NULL);
 		i++;
 	}
 	return (free(tv), philo_d->dead = 1, NULL);
 }
  
-pthread_mutex_t		*ft_init_forks(int n)
+static pthread_mutex_t		*ft_init_forks(int n)
 {
 	pthread_mutex_t *forks;
 
@@ -125,7 +132,7 @@ pthread_mutex_t		*ft_init_forks(int n)
 	return (forks);
 }
 
-t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_t *printer)
+static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_t *printer)
 {
 	t_philo *start;
 	t_philo *node;
@@ -159,7 +166,7 @@ t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_t *prin
 	return (node ->next = start, start);
 }
 
-int	ft_create_philos(t_arg *data)
+static int	ft_create_philos(t_arg *data)
 {
 	pthread_t		*philo;
 	t_philo			*l_philo;
