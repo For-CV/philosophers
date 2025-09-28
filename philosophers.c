@@ -1,67 +1,72 @@
 #include "philosophers.h"
 
-static void	ft_print_list(t_philo *l_philo)
+static void	ft_print_list(t_philo *philo_d)
 {
 	t_philo	*start;
 	
-	start = l_philo;
+	start = philo_d;
 	while (1)
 	{
 		printf("---------- NEW PHILOSOPHER DATA ------------\n");
-		printf("n_philos = %d\n", l_philo->n_philos);
-		printf("philo = %d\n", l_philo->philo);
-		printf("n_to_eat = %d\n", l_philo->n_to_eat);
-		printf("dead = %d\n", l_philo->dead);
-		printf("t_to_die = %ld\n", l_philo->t_to_die);
-		printf("t_to_eat = %ld\n", l_philo->t_to_eat);
-		printf("t_to_sleep = %ld\n", l_philo->t_to_sleep);
-		printf("forks = %p\n", l_philo->forks);
-		printf("philo = %p, next = %p\n", l_philo, l_philo->next);
+		printf("n_philos = %d\n", philo_d->n_philos);
+		printf("philo = %d\n", philo_d->philo);
+		printf("n_to_eat = %d\n", philo_d->n_to_eat);
+		printf("dead = %d\n", philo_d->dead);
+		printf("t_to_die = %ld\n", philo_d->t_to_die);
+		printf("t_to_eat = %ld\n", philo_d->t_to_eat);
+		printf("t_to_sleep = %ld\n", philo_d->t_to_sleep);
+		printf("forks = %p\n", philo_d->forks);
+		printf("philo = %p, next = %p\n", philo_d, philo_d->next);
 		printf("\n\n");
-		l_philo = l_philo->next;
-		if (l_philo == start)
+		philo_d = philo_d->next;
+		if (philo_d == start)
 			return ;
 	}
 }
 
-static int	ft_check_dead(t_philo *philo_d)
+static int	ft_set_dead(t_philo *philo_d)
 {
 	int	i;
 
 	i = 0;
 	while (i < philo_d->n_philos && philo_d)
 	{
-		if (philo_d->dead)
-			return (1);
+		philo_d->dead = 1;
 		i++;
 		philo_d = philo_d->next;
 	}
 	return (0);
 }
 
-static int	ft_collect_philos(t_philo *l_philo, pthread_t **threads)
+static int	ft_collect_philos(t_philo *philo_d, pthread_t **threads)
 {
 	pthread_t	*philo;
 	int			n_dead;
 	int			n_philos;
 
-	if (!l_philo || !threads || !*threads)
+	if (!philo_d || !threads || !*threads)
 		return (1);
 	philo = *threads;
-	n_philos = l_philo->n_philos;
+	n_philos = philo_d->n_philos;
 	n_dead = 0;
 	while (n_dead < n_philos)
 	{
-		if (l_philo->dead)
+		if (philo_d->dead)
 		{
-			if (!pthread_join(philo[l_philo->philo - 1], NULL))
+			if (!pthread_join(philo[philo_d->philo - 1], NULL))
 			{
 				n_dead++;
-				l_philo->dead = 0;
+				if (philo_d->n_to_eat)
+					philo_d->dead = 0;
+				if (!philo_d->n_to_eat)
+				{
+					ft_set_dead(philo_d);
+					pthread_mutex_unlock(philo_d->printer);
+				}
 			}
 		}
-		l_philo = l_philo->next;
-		if (!l_philo->dead)
+		philo_d = philo_d->next;
+		if (!philo_d->dead)
 			usleep(100);
 	}
 	printf(COLL_MSG);
@@ -112,14 +117,12 @@ static void	*ft_philo(void *arg)
 		if (t < 0)
 			return (philo_d->dead = 1, ft_unlock(philo_d, fork1, fork2), NULL);
 		if (philo_d->n_to_eat && i == philo_d->n_to_eat - 1)
-		return (philo_d->dead = 1, ft_unlock(philo_d, fork1, fork2), NULL);
+			return (philo_d->dead = 1, ft_unlock(philo_d, fork1, fork2), NULL);
 		ft_unlock(philo_d, fork1, fork2);
 		t = ft_time_printer(philo_d, SLEEP);
 		if (t < 0)
 			return (philo_d->dead = 1, NULL);
-		usleep(philo_d->t_to_sleep);
-		if (!philo_d->n_to_eat && ft_check_dead(philo_d))
-			return (philo_d->dead = 1, NULL);
+		ft_usleep(philo_d->t_to_sleep / 1000, philo_d);
 		t = ft_time_printer(philo_d, THINK);
 		if (t < 0)
 			return (philo_d->dead = 1, NULL);
@@ -148,6 +151,7 @@ static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_
 	t_philo *start;
 	t_philo *node;
 	int	i;
+	int	*dead;
 
 	i = 0;
 	start = (t_philo *)ft_calloc(1, sizeof(t_philo));
@@ -172,8 +176,6 @@ static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_
 			return (ft_free_list(&start), NULL);
 		node = node->next;
 	}
-	if (ft_set_timer(start))
-		return (ft_free_list(&start), NULL);
 	return (node ->next = start, start);
 }
 
@@ -190,8 +192,10 @@ static int	ft_create_philos(t_arg *data)
 	if (!philo_d || !philo || !printer)
 		return(free(philo), free(printer), ft_free_list(&philo_d), 1);
 	pthread_mutex_init(printer, NULL);
-	ft_print_list(philo_d);
+	// ft_print_list(philo_d);
 	i = 0;
+	if (ft_set_timer(philo_d))
+		return (1);
 	while (i < data->n_philos)
 	{
 		pthread_create(&(philo[i]), NULL, ft_philo, (void *)philo_d);

@@ -45,6 +45,7 @@ typedef struct	s_philo
 
 void	*ft_calloc(size_t nmemb, size_t size);
 void	ft_free_list(t_philo **start);
+void	ft_usleep(long ms, t_philo *philo_d);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);

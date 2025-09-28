@@ -38,23 +38,23 @@ int	ft_strlen(char *s)
 
 void	ft_free_list(t_philo **list)
 {
-	t_philo	*philo;
+	t_philo	*philo_d;
 	t_philo	*start;
 	t_philo	*next;
 
 	if (!list || !*list)
 		return ;
-	philo = *list;
+	philo_d = *list;
 	start = *list;
-	free(philo->forks);
-	philo->forks = NULL;
-	while  (philo)
+	free(philo_d->forks);
+	philo_d->forks = NULL;
+	while  (philo_d)
 	{
-		next = philo->next;
-		free(philo);
-		philo = NULL;
-		philo = next;
-		if (philo == start)
+		next = philo_d->next;
+		free(philo_d);
+		philo_d = NULL;
+		philo_d = next;
+		if (philo_d == start)
 			return ;
 	}
 	return ;
