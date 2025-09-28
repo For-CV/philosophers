@@ -38,7 +38,6 @@ typedef struct	s_philo
 	pthread_mutex_t	*forks;
 	int				dead;
 	suseconds_t		start_t;
-	suseconds_t		last_t;
 	suseconds_t		last_meal_t;
 	struct s_philo	*next;
 }	t_philo;

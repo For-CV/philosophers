@@ -122,7 +122,7 @@ static void	*ft_philo(void *arg)
 		t = ft_time_printer(philo_d, SLEEP);
 		if (t < 0)
 			return (philo_d->dead = 1, NULL);
-		ft_usleep(philo_d->t_to_sleep / 1000, philo_d);
+		ft_usleep(philo_d->t_to_sleep, philo_d);
 		t = ft_time_printer(philo_d, THINK);
 		if (t < 0)
 			return (philo_d->dead = 1, NULL);
