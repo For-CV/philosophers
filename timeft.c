@@ -1,39 +1,47 @@
 # include "philosophers.h"
 
-int	ft_set_timer(t_philo *node)
-{
-	int				i;
-	struct timeval	*tv;
 
-	tv = (struct timeval *)ft_calloc(1, sizeof(struct timeval));
-	if (!tv)
-		return (1);
-	i = 0;
-	if (gettimeofday(tv, NULL))
-		return (free(tv), -1);
-	while (node)
-	{
-		node->start_t = (tv->tv_sec * 1000) + (tv->tv_usec  / 1000);
-		node->last_meal_t = node->start_t;
-		printf("start_t = %ld\n", node->start_t);
-		node = node->next;
-	}
-	return (free(tv), 0);
-}
-
-long	ft_time_printer(t_philo *philo_d, int act)
+long	ft_get_time(void)
 {
 	struct timeval	*tv;
-	suseconds_t		current_t;
-	suseconds_t		act_t;
-
+	long			time;
 
 	tv = (struct timeval *)ft_calloc(1, sizeof(struct timeval));
 	if (!tv)
 		return (-1);
 	if (gettimeofday(tv, NULL))
 		return (free(tv), -1);
-	current_t = (((tv->tv_sec * 1000) + (tv->tv_usec / 1000)) - philo_d->start_t);
+	time = (tv->tv_sec * 1000) + (tv->tv_usec  / 1000);
+	free(tv);
+	return (time);
+}
+
+int	ft_set_timer(t_philo *node)
+{
+	int				i;
+	long	time;
+
+	time = ft_get_time();
+	if (time < 0)
+		return (-1);
+	i = 0;
+	while (node)
+	{
+		node->start_t = time;
+		node->last_meal_t = node->start_t;
+		node = node->next;
+	}
+	return (0);
+}
+
+long	ft_time_printer(t_philo *philo_d, int act)
+{
+	suseconds_t		current_t;
+	suseconds_t		act_t;
+
+	current_t = ft_get_time();
+	if (!current_t)
+		return (-1);
 	if (act == EAT)
 		philo_d->last_meal_t = current_t;
 	act_t = current_t - philo_d->last_t;
@@ -51,8 +59,8 @@ long	ft_time_printer(t_philo *philo_d, int act)
 	else
 	{
 		printf(" died\n");
-		return (pthread_mutex_unlock(philo_d->printer), free(tv), -1);
+		return (pthread_mutex_unlock(philo_d->printer), -1);
 	}
 	pthread_mutex_unlock(philo_d->printer);
-	return (free(tv), act_t);
+	return (act_t);
 }
