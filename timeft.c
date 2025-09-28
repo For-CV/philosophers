@@ -20,8 +20,15 @@ void	ft_usleep(long ms, t_philo *philo_d)
 	long	start;
 
 	start = ft_get_time();
-	while (!*(philo_d->stop))
+	while (1)
 	{
+		pthread_mutex_lock(philo_d->dead_m);
+		if (*(philo_d->dead))
+		{
+			pthread_mutex_unlock(philo_d->dead_m);
+			break ;
+		}
+		pthread_mutex_unlock(philo_d->dead_m);
 		if (ft_get_time() - start >= ms)
 			break ;
 		if (ms > 100)
@@ -63,8 +70,11 @@ long	ft_time_printer(t_philo *philo_d, int act)
 	if ((current_t - philo_d->last_meal_t) >= philo_d->t_to_die)
 		act = -1;
 	pthread_mutex_lock(philo_d->printer);
-	if (!philo_d->n_to_eat && *(philo_d->stop))
-		return (pthread_mutex_unlock(philo_d->printer), -1);
+	if (!philo_d->n_to_eat && *(philo_d->dead))
+	{
+		pthread_mutex_unlock(philo_d->printer);
+		return (-1);
+	}
 	printf("%ld ms %d", current_t - philo_d->start_t, philo_d->philo);
 	if (act == FORK)
 		printf(" has taken a fork\n");

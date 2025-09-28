@@ -1,48 +1,10 @@
-120 ms 1 has taken a fork
-130 ms 1 is eating
-339 ms 1 is sleeping
-340 ms 3 has taken a fork
-340 ms 3 is eating
-539 ms 1 is thinking
-540 ms 2 has taken a fork
-540 ms 2 is eating
-540 ms 3 is sleeping
-740 ms 3 is thinking
-740 ms 2 is sleeping
-740 ms 1 has taken a fork
-740 ms 1 is eating
-940 ms 2 is thinking
-941 ms 3 has taken a fork
-941 ms 3 is eating
-941 ms 1 is sleeping
-1141 ms 3 is sleeping
-1141 ms 2 has taken a fork
-1141 ms 2 is eating
-1141 ms 1 is thinking
-1341 ms 1 has taken a fork
-1341 ms 1 is eating
-1341 ms 2 is sleeping
-1341 ms 3 is thinking
-1556 ms 3 has taken a fork
-1556 ms 3 is eating
-1556 ms 1 is sleeping
-1556 ms 2 is thinking
-1756 ms 1 is thinking
-1756 ms 2 has taken a fork
-1756 ms 2 is eating
-1756 ms 3 is sleeping
-2014 ms 3 is thinking
-2014 ms 2 is sleeping
-2015 ms 1 has taken a fork
-2015 ms 1 is eating
-2214 ms 2 is thinking
-2215 ms 3 has taken a fork
-2215 ms 3 is eating
-2215 ms 1 is sleeping
-2432 ms 1 is thinking
-2432 ms 3 is sleeping
-2432 ms 1 has taken a fork
-2432 ms 1 is eating
-2632 ms 1 is sleeping
-2632 ms 2 died
-All philosophers are collected
+==12015== Helgrind, a thread error detector
+==12015== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+==12015== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==12015== Command: ./philo 30 800 200 200 100
+==12015== 
+==12015== 
+==12015== Use --history-level=approx or =none to gain increased speed, at
+==12015== the cost of reduced accuracy of conflicting-access information
+==12015== For lists of detected and suppressed errors, rerun with: -s
+==12015== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2627588 from 99)

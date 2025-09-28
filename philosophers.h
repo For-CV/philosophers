@@ -29,8 +29,8 @@ typedef struct s_arg
 typedef struct	s_philo
 {
 	pthread_mutex_t	*printer;
-	int				*stop;
-	int				dead;
+	pthread_mutex_t	*dead_m;
+	int				*dead;
 	int				n_philos;
 	int				philo;
 	__useconds_t	t_to_die;
@@ -46,6 +46,7 @@ typedef struct	s_philo
 void	*ft_calloc(size_t nmemb, size_t size);
 void	ft_free_list(t_philo **start);
 void	ft_usleep(long ms, t_philo *philo_d);
+void	ft_set_dead_m(t_philo *philo_d, int dead);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);

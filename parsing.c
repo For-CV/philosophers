@@ -57,7 +57,7 @@ int	ft_parse(t_arg *arg, char **argv)
 
 	arg->n_to_eat = 0;
 	arg->n_philos = ft_atoi(argv[1]);
-	if (arg->n_philos < 0)
+	if (arg->n_philos <= 0)
 		return (write(2, "number_philo must be a positive int\n", 36), 0);
 	t = ft_atoi(argv[2]);
 	if (t < 0)
