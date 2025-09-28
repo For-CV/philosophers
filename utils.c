@@ -47,6 +47,8 @@ void	ft_free_list(t_philo **list)
 	philo_d = *list;
 	start = *list;
 	free(philo_d->forks);
+	free(philo_d->stop);
+	philo_d->stop = NULL;
 	philo_d->forks = NULL;
 	while  (philo_d)
 	{

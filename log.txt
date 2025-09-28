@@ -1,0 +1,48 @@
+120 ms 1 has taken a fork
+130 ms 1 is eating
+339 ms 1 is sleeping
+340 ms 3 has taken a fork
+340 ms 3 is eating
+539 ms 1 is thinking
+540 ms 2 has taken a fork
+540 ms 2 is eating
+540 ms 3 is sleeping
+740 ms 3 is thinking
+740 ms 2 is sleeping
+740 ms 1 has taken a fork
+740 ms 1 is eating
+940 ms 2 is thinking
+941 ms 3 has taken a fork
+941 ms 3 is eating
+941 ms 1 is sleeping
+1141 ms 3 is sleeping
+1141 ms 2 has taken a fork
+1141 ms 2 is eating
+1141 ms 1 is thinking
+1341 ms 1 has taken a fork
+1341 ms 1 is eating
+1341 ms 2 is sleeping
+1341 ms 3 is thinking
+1556 ms 3 has taken a fork
+1556 ms 3 is eating
+1556 ms 1 is sleeping
+1556 ms 2 is thinking
+1756 ms 1 is thinking
+1756 ms 2 has taken a fork
+1756 ms 2 is eating
+1756 ms 3 is sleeping
+2014 ms 3 is thinking
+2014 ms 2 is sleeping
+2015 ms 1 has taken a fork
+2015 ms 1 is eating
+2214 ms 2 is thinking
+2215 ms 3 has taken a fork
+2215 ms 3 is eating
+2215 ms 1 is sleeping
+2432 ms 1 is thinking
+2432 ms 3 is sleeping
+2432 ms 1 has taken a fork
+2432 ms 1 is eating
+2632 ms 1 is sleeping
+2632 ms 2 died
+All philosophers are collected

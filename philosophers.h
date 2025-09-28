@@ -29,6 +29,8 @@ typedef struct s_arg
 typedef struct	s_philo
 {
 	pthread_mutex_t	*printer;
+	int				*stop;
+	int				dead;
 	int				n_philos;
 	int				philo;
 	__useconds_t	t_to_die;
@@ -36,7 +38,6 @@ typedef struct	s_philo
 	__useconds_t	t_to_sleep;
 	int				n_to_eat;	
 	pthread_mutex_t	*forks;
-	int				dead;
 	suseconds_t		start_t;
 	suseconds_t		last_meal_t;
 	struct s_philo	*next;
