@@ -52,5 +52,6 @@ int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);
 int		ft_set_timer(t_philo *node);
 long	ft_time_printer(t_philo *philo, int act);
+long	ft_get_time(void);
 
 #endif

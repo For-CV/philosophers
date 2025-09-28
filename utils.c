@@ -3,20 +3,22 @@
 void    *ft_calloc(size_t nmemb, size_t size)
 {
 	void	*result;
-	int	i;
+	size_t  bytes;
+	size_t	i;
 
 	if (nmemb == 0 || size == 0)
 	{
 		result = malloc(0);
 		return (result);
 	}
-	if (nmemb && size > SIZE_MAX / size)
+	if (nmemb && nmemb > SIZE_MAX / size)
 		return (NULL);
-	result = malloc(nmemb * size);
+		bytes = nmemb * size;
+	result = malloc(bytes);
 	if (!result)
 		return (NULL);
 	i = 0;
-	while (i < (nmemb * size))
+	while (i < (bytes))
 	{
 		((char *)result)[i] = '\0';
 		i++;
