@@ -13,51 +13,46 @@ int	ft_set_timer(t_philo *node)
 		return (free(tv), -1);
 	while (node)
 	{
-		node->big_t = tv->tv_sec;
-		node->micro_t = tv->tv_usec;
-		node->last_big_t = node->big_t;
-		node->last_micro_t = node->last_micro_t;
-		// printf("node->big_t = %ld, node->micro_t = %ld\n", node->big_t, node->micro_t);
+		node->start_t = (tv->tv_sec * 1000) + (tv->tv_usec  / 1000);
+		node->last_meal_t = node->start_t;
+		printf("start_t = %ld\n", node->start_t);
 		node = node->next;
 	}
 	return (free(tv), 0);
 }
 
-long	ft_time_printer(suseconds_t micro_t, time_t big_t, t_philo *philo, int act)
+long	ft_time_printer(t_philo *philo_d, int act)
 {
 	struct timeval	*tv;
-	time_t			sec;
-	suseconds_t			t;
+	suseconds_t		current_t;
+	suseconds_t		act_t;
 
 
 	tv = (struct timeval *)ft_calloc(1, sizeof(struct timeval));
 	if (!tv)
 		return (-1);
 	if (gettimeofday(tv, NULL))
-		return (free(tv), 1);
-	sec = (tv->tv_sec - big_t) * 1000;
-	t = (sec + (tv->tv_usec - micro_t) / 1000);
-	pthread_mutex_lock(philo->printer);
-	printf("%ld ms %d", t, philo->philo);
+		return (free(tv), -1);
+	current_t = (((tv->tv_sec * 1000) + (tv->tv_usec / 1000)) - philo_d->start_t);
+	if (act == EAT)
+		philo_d->last_meal_t = current_t;
+	act_t = current_t - philo_d->last_t;
+	philo_d->last_t = current_t;
+	pthread_mutex_lock(philo_d->printer);
+	printf("%ld ms %d", current_t, philo_d->philo);
 	if (act == FORK)
 		printf(" has taken a fork\n");
-	else if (act == EAT && t <= philo->t_to_eat)
+	else if (act == EAT && (act_t <= philo_d->t_to_eat && (philo_d->last_meal_t - current_t) <= philo_d->t_to_die))
 		printf(" is eating\n");
-	else if (act == SLEEP && t <= philo->t_to_sleep)
+	else if (act == SLEEP && act_t <= philo_d->t_to_sleep)
 		printf(" is sleeping\n");
-	else if (act == THINK && t <= philo->t_to_die)
+	else if (act == THINK && act_t <= philo_d->t_to_die)
 		printf(" is thinking\n");
 	else
 	{
 		printf(" died\n");
-		return (pthread_mutex_unlock(philo->printer), free(tv), -1);
+		return (pthread_mutex_unlock(philo_d->printer), free(tv), -1);
 	}
-	if (gettimeofday(tv, NULL))
-		return (free(tv), 1);
-	t = (tv->tv_sec - philo->last_big_t) + (tv->tv_usec - philo->last_micro_t);
-	philo->last_big_t = tv->tv_sec;
-	philo->last_micro_t = tv->tv_usec;
-	printf("t = %ld ms\n", t / 1000);
-	pthread_mutex_unlock(philo->printer);
-	return (free(tv), t);
+	pthread_mutex_unlock(philo_d->printer);
+	return (free(tv), act_t);
 }

@@ -65,10 +65,9 @@ static void	ft_unlock(t_philo *philo_d, int first, int second)
 static void	*ft_philo(void *arg)
 {
 	t_philo	*philo_d;
-	int		philo;
 	int		prev_philo;
-	int		first_fork;
-	int		second_fork;
+	int		fork1;
+	int		fork2;
 	int		i;
 	struct timeval	*tv;
 	long	t;
@@ -77,39 +76,38 @@ static void	*ft_philo(void *arg)
 	if (!tv)
 		return (NULL);
 	philo_d = (t_philo *)arg;
-	philo = philo_d->philo - 1;
-	if (philo > 0)
-		prev_philo = philo - 1;
+	if (philo_d->philo - 1 > 0)
+		prev_philo = philo_d->philo - 2;
 	else
 		prev_philo = philo_d->n_philos - 1;
 	if ((philo_d->philo % 2) == 0)
 	{
-		first_fork = philo;
-		second_fork = prev_philo;
+		fork1 = philo_d->philo - 1;
+		fork2 = prev_philo;
 	}
 	else
 	{
-		first_fork = prev_philo;
-		second_fork = philo;
+		fork1 = prev_philo;
+		fork2 = philo_d->philo - 1;
 	}
 	i = 0;
 	while (i < philo_d->n_to_eat)
 	{
-		pthread_mutex_lock(&(philo_d->forks[first_fork]));
+		pthread_mutex_lock(&(philo_d->forks[fork1]));
 		if (philo_d->n_philos > 1)
-			pthread_mutex_lock(&(philo_d->forks[second_fork]));
-		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, FORK);
+			pthread_mutex_lock(&(philo_d->forks[fork2]));
+		t = ft_time_printer(philo_d, FORK);
 		if (t < 0)
-			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, first_fork, second_fork), NULL);
-		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, EAT);
+			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, fork1, fork2), NULL);
+		t = ft_time_printer(philo_d, EAT);
 		if (t < 0)
-			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, first_fork, second_fork), NULL);
-		ft_unlock(philo_d, first_fork, second_fork);
-		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, SLEEP);
+			return (free(tv), philo_d->dead = 1, ft_unlock(philo_d, fork1, fork2), NULL);
+		ft_unlock(philo_d, fork1, fork2);
+		t = ft_time_printer(philo_d, SLEEP);
 		if (t < 0)
 			return (free(tv), philo_d->dead = 1, NULL);
 		usleep(philo_d->t_to_sleep);
-		t = ft_time_printer(philo_d->micro_t, philo_d->big_t, philo_d, THINK);
+		t = ft_time_printer(philo_d, THINK);
 		if (t < 0)
 			return (free(tv), philo_d->dead = 1, NULL);
 		i++;
@@ -169,27 +167,27 @@ static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_
 static int	ft_create_philos(t_arg *data)
 {
 	pthread_t		*philo;
-	t_philo			*l_philo;
+	t_philo			*philo_d;
 	pthread_mutex_t	*printer;
 	int				i;
 
 	printer = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
-	l_philo = ft_init_list(data, ft_init_forks(data->n_philos), printer);
+	philo_d = ft_init_list(data, ft_init_forks(data->n_philos), printer);
 	philo = (pthread_t *)ft_calloc(data->n_philos, sizeof(pthread_t));
-	if (!l_philo || !philo || !printer)
-		return(free(philo), free(printer), ft_free_list(&l_philo), 1);
+	if (!philo_d || !philo || !printer)
+		return(free(philo), free(printer), ft_free_list(&philo_d), 1);
 	pthread_mutex_init(printer, NULL);
-	ft_print_list(l_philo);
+	ft_print_list(philo_d);
 	i = 0;
 	while (i < data->n_philos)
 	{
-		pthread_create(&(philo[i]), NULL, ft_philo, (void *)l_philo);
-		l_philo = l_philo->next;
+		pthread_create(&(philo[i]), NULL, ft_philo, (void *)philo_d);
+		philo_d = philo_d->next;
 		i++;
 	}
 	i = 0;
-	ft_collect_dead(l_philo, &philo);
-	ft_free_list(&l_philo);
+	ft_collect_dead(philo_d, &philo);
+	ft_free_list(&philo_d);
 	free(philo);
 	free(printer);
 	return (0);

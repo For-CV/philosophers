@@ -1,14 +1,100 @@
-==5501== Memcheck, a memory error detector
-==5501== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
-==5501== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
-==5501== Command: ./philo 3 400 400 400 5
-==5501== 
-==5501== 
-==5501== HEAP SUMMARY:
-==5501==     in use at exit: 0 bytes in 0 blocks
-==5501==   total heap usage: 75 allocs, 75 frees, 3,332 bytes allocated
-==5501== 
-==5501== All heap blocks were freed -- no leaks are possible
-==5501== 
-==5501== For lists of detected and suppressed errors, rerun with: -s
-==5501== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+start_t = 1759046876829
+start_t = 1759046876829
+start_t = 1759046876829
+---------- NEW PHILOSOPHER DATA ------------
+n_philos = 3
+philo = 1
+n_to_eat = 5
+dead = 0
+t_to_die = 400
+t_to_eat = 400
+t_to_sleep = 400
+forks = 0x4a4a110
+philo = 0x4a4a1d0, next = 0x4a4a260
+
+
+---------- NEW PHILOSOPHER DATA ------------
+n_philos = 3
+philo = 2
+n_to_eat = 5
+dead = 0
+t_to_die = 400
+t_to_eat = 400
+t_to_sleep = 400
+forks = 0x4a4a110
+philo = 0x4a4a260, next = 0x4a4a2f0
+
+
+---------- NEW PHILOSOPHER DATA ------------
+n_philos = 3
+philo = 3
+n_to_eat = 5
+dead = 0
+t_to_die = 400
+t_to_eat = 400
+t_to_sleep = 400
+forks = 0x4a4a110
+philo = 0x4a4a2f0, next = 0x4a4a1d0
+
+
+131 ms 1 has taken a fork
+132 ms 1 is eating
+133 ms 1 is sleeping
+133 ms 3 has taken a fork
+133 ms 3 is eating
+133 ms 3 is sleeping
+133 ms 2 has taken a fork
+133 ms 2 is eating
+134 ms 2 is sleeping
+134 ms 1 is thinking
+134 ms 1 has taken a fork
+134 ms 1 is eating
+134 ms 1 is sleeping
+135 ms 2 is thinking
+135 ms 2 has taken a fork
+135 ms 2 is eating
+135 ms 2 is sleeping
+135 ms 3 is thinking
+135 ms 3 has taken a fork
+135 ms 3 is eating
+135 ms 3 is sleeping
+135 ms 1 is thinking
+135 ms 1 has taken a fork
+135 ms 1 is eating
+135 ms 1 is sleeping
+136 ms 3 is thinking
+136 ms 3 has taken a fork
+136 ms 3 is eating
+136 ms 3 is sleeping
+136 ms 2 is thinking
+136 ms 2 has taken a fork
+136 ms 2 is eating
+136 ms 2 is sleeping
+136 ms 1 is thinking
+136 ms 1 has taken a fork
+136 ms 1 is eating
+136 ms 1 is sleeping
+137 ms 3 is thinking
+137 ms 3 has taken a fork
+137 ms 3 is eating
+137 ms 3 is sleeping
+137 ms 2 is thinking
+137 ms 2 has taken a fork
+137 ms 2 is eating
+137 ms 2 is sleeping
+137 ms 1 is thinking
+137 ms 1 has taken a fork
+137 ms 1 is eating
+137 ms 1 is sleeping
+137 ms 3 is thinking
+138 ms 3 has taken a fork
+138 ms 3 is eating
+138 ms 3 is sleeping
+138 ms 2 is thinking
+138 ms 2 has taken a fork
+138 ms 2 is eating
+138 ms 2 is sleeping
+139 ms 2 is thinking
+142 ms 3 is thinking
+144 ms 1 is thinking
+All philosophers are collected

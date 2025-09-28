@@ -37,10 +37,9 @@ typedef struct	s_philo
 	int				n_to_eat;	
 	pthread_mutex_t	*forks;
 	int				dead;
-	suseconds_t		micro_t;
-	time_t			big_t;
-	long			last_big_t;
-	long			last_micro_t;
+	suseconds_t		start_t;
+	suseconds_t		last_t;
+	suseconds_t		last_meal_t;
 	struct s_philo	*next;
 }	t_philo;
 
@@ -49,8 +48,7 @@ void	ft_free_list(t_philo **start);
 int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);
-long		ft_time_printer(suseconds_t micro_t, time_t big_t, t_philo *philo, int act);
-int	ft_set_timer(t_philo *node);
-
+int		ft_set_timer(t_philo *node);
+long	ft_time_printer(t_philo *philo, int act);
 
 #endif
