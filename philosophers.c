@@ -1,5 +1,5 @@
 #include "philosophers.h"
-//
+
 static int	ft_collect_philos(t_philo *philo_d, pthread_t **threads)
 {
 	pthread_t	*philo;
