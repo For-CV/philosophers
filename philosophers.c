@@ -151,8 +151,10 @@ static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_
 	i = 0;
 	start = (t_philo *)ft_calloc(1, sizeof(t_philo));
 	dead = (int *)ft_calloc(1, sizeof(int));
+	if (!start || !forks || !printer || !dead)
+		return (free(forks), free(dead), dead = NULL, ft_free_list(&start), NULL);
 	start->dead_m = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
-	if (!start || !forks || !printer || !dead || !start->dead_m)
+	if (!start->dead_m)
 		return (free(forks), free(dead), dead = NULL, ft_free_list(&start), NULL);
 	pthread_mutex_init(start->dead_m, NULL);
 	node = start;
@@ -217,7 +219,7 @@ int	main(int argc, char **argv)
 		return (write(2, ERR_MSG, 128), 1);
 	data = (t_arg *)ft_calloc(1, sizeof(t_arg));
 	if (!data)
-		return (write(2, "malloc failure\n", 15), 1);
+		return (write(2, "Error: \n", 15), 1);
 	if (!ft_parse(data, argv))
 		return (free(data), 1);
 	ft_create_philos(data);
