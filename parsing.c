@@ -27,8 +27,10 @@ static int	ft_skip_space(char *s)
 
 int	ft_atoi(char *s)
 {
-	int		i;
-	int		r;
+	int	i;
+	int	r;
+	int	digit;
+
 
 	if (!s)
 		return (-1);
@@ -38,9 +40,10 @@ int	ft_atoi(char *s)
 	r = 0;
 	while (s[i] >= '0' && s[i] <= '9')
 	{
-		if (r > (INT_MAX - ((s[i] - '0') / 10)))
+		digit = s[i] - '0';
+		if (r > (INT_MAX - digit) / 10)
 			return (-1);
-		r = r * 10 + (s[i] - '0');
+		r = r * 10 + digit;
 		i++;
 	}
 	if (i < ft_strlen(s))

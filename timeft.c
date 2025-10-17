@@ -31,7 +31,7 @@ void	ft_usleep(long ms, t_philo *philo_d)
 		pthread_mutex_unlock(philo_d->dead_m);
 		if (ft_get_time() - start >= ms)
 			break ;
-		if (ms > 100)
+		if (ms > 200)
 			usleep(100);
 		else
 		{
