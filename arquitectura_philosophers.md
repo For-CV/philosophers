@@ -25,34 +25,35 @@
   4. El hilo principal espera a que cada hilo finalice (`ft_collect_philos`) y libera memoria (`ft_free_list`).
 
 ```mermaid
-graph TD;
-    main_entry[main (philosophers.c)];
-    parser[ft_parse (parsing.c)];
-    creator[ft_create_philos (philosophers.c)];
-    forks[ft_init_forks];
-    list_init[ft_init_list];
-    timer[ft_set_timer (timeft.c)];
-    runner[pthread_create + ft_philo];
-    forks_use[Tomar tenedores (mutex forks)];
-    printer[ft_time_printer];
-    sleeper[ft_usleep / control tiempo];
-    watchdog[Verificar bandera dead];
-    collector[ft_collect_philos];
-    cleanup[ft_free_list + liberar recursos];
+flowchart TD
+    main_entry["main (philosophers.c)"]
+    parser["ft_parse (parsing.c)"]
+    creator["ft_create_philos (philosophers.c)"]
+    forks["ft_init_forks"]
+    list_init["ft_init_list"]
+    timer["ft_set_timer (timeft.c)"]
+    runner["pthread_create → ft_philo"]
+    forks_use["Tomar tenedores (mutex forks)"]
+    printer["ft_time_printer"]
+    sleeper["ft_usleep / control tiempo"]
+    watchdog["Verificar bandera dead"]
+    collector["ft_collect_philos"]
+    cleanup["ft_free_list + liberar recursos"]
 
-    main_entry --> parser;
-    parser --> creator;
-    creator --> forks;
-    creator --> list_init;
-    creator --> timer;
-    creator --> runner;
-    runner --> forks_use;
-    runner --> printer;
-    runner --> watchdog;
-    printer --> sleeper;
-    sleeper --> runner;
-    runner --> collector;
-    collector --> cleanup;
+    main_entry --> parser
+    parser --> creator
+    creator --> forks
+    creator --> list_init
+    creator --> timer
+    creator --> runner
+    runner --> forks_use
+    runner --> printer
+    runner --> watchdog
+    printer --> sleeper
+    sleeper --> runner
+    runner --> collector
+    collector --> cleanup
+
 ```
 
 ## Tecnologías utilizadas
