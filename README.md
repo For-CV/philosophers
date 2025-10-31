@@ -1,76 +1,76 @@
-# Informe de Arquitectura – Philosophers
+# Informe Arquitectónico – Philosophers
 
-## Resumen del enunciado
-- Simular el problema de los filósofos cenando utilizando hilos y mutex según el subject oficial de 42.
-- Entrada: `number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]`.
-- Cada filósofo debe alternar acciones (pensar, coger tenedores, comer, dormir) sin condiciones de carrera y detectando muertes.
-- La versión entregada es la parte obligatoria basada en hilos (no incluye `philo_bonus` con procesos/semáforos).
+Este documento recoge el análisis arquitectónico del proyecto **Philosophers** (parte obligatoria del curriculum 42). El objetivo es simular el clásico problema de los filósofos cenando garantizando ausencia de _data races_, detección de muertes en tiempo máximo de 10 ms y cumplimiento estricto del formato de logs definido en el subject oficial (`es.subject.pdf`).
 
-## Arquitectura técnica
-- **Modelo de concurrencia**: se crea un hilo por filósofo (`pthread_create`) y se gestiona con un bucle principal que coordina su finalización (`ft_collect_philos`).
-- **Estructuras de datos**:
-  - `t_arg` encapsula la configuración de la simulación (número de filósofos, tiempos y límite opcional de comidas).
-  - `t_philo` representa a cada filósofo como un nodo de una lista circular enlazada, compartiendo punteros a recursos comunes (array de mutex de tenedores, mutex de impresión y bandera de muerte).
-- **Coordinación**:
-  - Un array de `pthread_mutex_t` representa los tenedores. El acceso se ordena alternando qué tenedor se toma primero según el índice del filósofo para evitar interbloqueos.
-  - Un mutex adicional (`printer`) serializa la salida por pantalla y controla el aviso de muerte.
-  - Un mutex (`dead_m`) y una bandera compartida determinan cuándo finalizar la simulación o cuándo un filósofo termina su ciclo de comidas.
-- **Gestión del tiempo**:
-  - `ft_get_time` y `ft_usleep` envuelven `gettimeofday` y `usleep` para trabajar en milisegundos y despertar periódicamente a los hilos para comprobar estados.
-  - `ft_time_printer` centraliza la lógica de registro de acciones, actualiza `last_meal_t` y gestiona el corte cuando un filósofo muere.
+## 1. Contexto del subject
+- Entrada obligatoria: `number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]`.
+- Prohibición de variables globales; sincronización estricta mediante mecanismos proporcionados por POSIX Threads.
+- Cada cambio de estado debe registrarse como `timestamp_in_ms X <acción>` respetando orden temporal.
+- La simulación se detiene al morir un filósofo o cuando todos han comido el número opcional de veces.
+- Cada filósofo debe alternar pensar → tomar tenedores → comer → dormir evitando interbloqueos y starvation.
+
+## 2. Visión arquitectónica
+- **Modelo de concurrencia**: `philosophers.c` crea un hilo por filósofo (`pthread_create`) a partir de la lista circular `t_philo`. El hilo principal espera a que cada hilo declare finalización (`ft_collect_philos`).
+- **Estructuras de dominio**:
+  - `t_arg` (`philosophers.h`) encapsula parámetros iniciales.
+  - `t_philo` (`philosophers.h`) representa cada filósofo como nodo de una lista circular enlazada que comparte punteros a recursos comunes (forks, mutex de impresión, bandera de terminación).
+- **Sincronización**:
+  - Un array de `pthread_mutex_t` (`ft_init_forks`) modela los tenedores. La política de adquisición alterna el orden según paridad del filósofo para mitigar deadlocks.
+  - `printer` serializa la salida para mantener logs coherentes.
+  - `dead_m` + `dead` constituyen el mecanismo de parada segura para todos los hilos.
+- **Gestión temporal**: `timeft.c` expone `ft_get_time`, `ft_usleep` y `ft_time_printer` para operar en milisegundos, dormir con comprobaciones periódicas y cortar el ciclo si se excede `time_to_die`.
 - **Ciclo de vida**:
-  1. `main` valida argumentos (`ft_parse`) y delega en `ft_create_philos`.
-  2. Se inicializan los mutex de los tenedores (`ft_init_forks`) y la lista circular de filósofos (`ft_init_list`), compartiendo la configuración y recursos comunes.
-  3. Se inicializan los temporizadores (`ft_set_timer`) y se lanzan los hilos. Cada hilo ejecuta `ft_philo`, que controla el bucle de acciones hasta morir o completar las comidas requeridas.
-  4. El hilo principal espera a que cada hilo finalice (`ft_collect_philos`) y libera memoria (`ft_free_list`).
+  1. `main` valida argumentos (`ft_parse` en `parsing.c`) y reserva memoria.
+  2. `ft_create_philos` inicializa forks, lista circular y mutexes, sincroniza timers (`ft_set_timer`) y lanza los hilos de filósofos.
+  3. Cada hilo ejecuta `ft_philo`: toma forks, come, duerme, piensa y repite hasta morir o completar `n_to_eat`.
+  4. El hilo principal consolida terminación (`ft_collect_philos`), libera memoria (`ft_free_list` en `utils.c`) y destruye recursos.
+- **Gestión de memoria**: todas las reservas usan `ft_calloc` (propio) y la liberación se concentra en `ft_free_list`, asegurando ausencia de leaks acorde al subject.
 
-```mermaid
-flowchart TD
-    main_entry["main (philosophers.c)"]
-    parser["ft_parse (parsing.c)"]
-    creator["ft_create_philos (philosophers.c)"]
-    forks["ft_init_forks"]
-    list_init["ft_init_list"]
-    timer["ft_set_timer (timeft.c)"]
-    runner["pthread_create → ft_philo"]
-    forks_use["Tomar tenedores (mutex forks)"]
-    printer["ft_time_printer"]
-    sleeper["ft_usleep / control tiempo"]
-    watchdog["Verificar bandera dead"]
-    collector["ft_collect_philos"]
-    cleanup["ft_free_list + liberar recursos"]
+## 3. Tecnologías y herramientas
+- Lenguaje C estándar (C99) con compilación vía `cc`.
+- Biblioteca POSIX Threads (`pthread_create`, `pthread_join`, `pthread_mutex_*`).
+- API POSIX para medición temporal: `gettimeofday`, `usleep`.
+- `Makefile` con flags `-g -O1 -pthread` y reglas `all`, `clean`, `fclean`.
+- Script de verificación `test_philo.sh` (Bash) que usa `timeout`, `grep` y comprobaciones personalizadas.
 
-    main_entry --> parser
-    parser --> creator
-    creator --> forks
-    creator --> list_init
-    creator --> timer
-    creator --> runner
-    runner --> forks_use
-    runner --> printer
-    runner --> watchdog
-    printer --> sleeper
-    sleeper --> runner
-    runner --> collector
-    collector --> cleanup
-
+## 4. Mapa de componentes
+```
+.
+├── Makefile
+├── philosophers.h          # Definición de estructuras, constantes y prototipos
+├── philosophers.c          # Orquestación principal, creación de hilos y sincronización
+├── parsing.c               # Validación de argumentos y conversión segura a enteros
+├── timeft.c                # Utilidades de tiempo y control de impresión
+├── utils.c                 # utilidades (calloc, strlen, liberación de lista, flag de parada)
+├── test_philo.sh           # Suite de pruebas funcionales y de validación de logs
+├── main.c                  # Stub experimental no incluido en la build
+├── es.subject.pdf          # Enunciado oficial (versión en español)
+└── *.txt / log.txt         # Archivos temporales o de pruebas manuales
 ```
 
-## Tecnologías utilizadas
-- Lenguaje C estándar compilado con `cc` (GNU Compiler Collection por defecto).
-- Biblioteca POSIX Threads (`pthread_create`, `pthread_join`, mutex de pthread).
-- Syscalls/funciones POSIX: `gettimeofday`, `usleep`, `write`.
-- Herramientas de compilación: `Makefile` con flags `-g -O1 -pthread`.
-- Scripts auxiliares en Bash (`test_philo.sh`) que utilizan `timeout`, `grep`, `printf`.
+## 5. Flujo de ejecución (Mermaid)
+```mermaid
+flowchart TD
+    A[main<br/>philosophers.c] --> B[ft_parse<br/>parsing.c];
+    B --> C[ft_create_philos<br/>philosophers.c];
+    C --> D[ft_init_forks];
+    C --> E[ft_init_list];
+    C --> F[ft_set_timer<br/>timeft.c];
+    C --> G[pthread_create → ft_philo];
+    G --> H[Tomar forks<br/>mutex array];
+    G --> I[ft_time_printer<br/>timeft.c];
+    I -->|eat| J[ft_usleep<br/>timeft.c];
+    G --> K[ft_set_dead_m / dead flag];
+    G --> L[Condición n_to_eat];
+    C --> M[ft_collect_philos];
+    M --> N[ft_free_list<br/>utils.c];
+```
 
-## Estructura de carpetas y archivos
-- `Makefile`: orquesta la compilación del binario `philo` a partir de los módulos fuente.
-- `philosophers.c`: punto de entrada real; inicializa estructuras, crea hilos y orquesta la simulación.
-- `philosophers.h`: definiciones de estructuras, macros y prototipos compartidos.
-- `parsing.c`: validación y conversión segura de argumentos de línea de comandos.
-- `timeft.c`: utilidades de tiempo y sincronización de acciones.
-- `utils.c`: utilidades generales (calloc propio, liberación de lista circular, helpers).
-- `test_philo.sh`: suite de pruebas automatizadas en Bash para validar argumentos y comportamiento básico.
-- `main.c`: stub de pruebas no referenciado por el `Makefile` (no participa en la build principal).
-- `es.subject.pdf`: enunciado oficial (versión en español) utilizado como referencia.
-- `philo`: binario resultante tras compilar.
+## 6. Consideraciones operativas
+- **Log coherente**: `ft_time_printer` controla la ventana crítica de impresión y actualiza `last_meal_t` antes de liberar los mutex.
+- **Single philosopher**: `ft_one_philo` maneja el caso límite (único tenedor) para cumplir tiempos de muerte.
+- **Pruebas recomendadas**: ejecutar `./test_philo.sh` tras compilar para validar argumentos, monotonicidad de timestamps y cumplimiento del formato.
+
+## 7. Próximos pasos sugeridos
+- Activar y estabilizar flags de diagnóstico (`-Wall -Wextra -Werror` y sanitizadores) en el `Makefile`.
+- Incluir tests de integridad adicionales (p.ej. escenarios de alta contención) y mediciones de tiempo crítico para asegurar margen frente al límite de 10 ms.
