@@ -83,7 +83,7 @@ static inline long	ft_print_action(t_philo *philo_d, int act, suseconds_t curren
 	}
 	if (act != EAT)
 		pthread_mutex_unlock(philo_d->printer);
-		return (0);
+	return (0);
 }
 
 long	ft_time_printer(t_philo *philo_d, int act)
@@ -96,7 +96,7 @@ long	ft_time_printer(t_philo *philo_d, int act)
 	if ((current_t - philo_d->last_meal_t) >= philo_d->t_to_die)
 		act = -1;
 	pthread_mutex_lock(philo_d->printer);
-	if (!philo_d->n_to_eat && *(philo_d->dead))
+	if (*(philo_d->dead))
 	{
 		pthread_mutex_unlock(philo_d->printer);
 		return (-1);

@@ -88,6 +88,7 @@ static int ft_exec_more_actions(t_philo *philo_d, int fork1, int fork2, int i)
 		ft_unlock(philo_d, fork1, fork2);
 		return (ft_set_dead_m(philo_d, 1), 1);
 	}
+	return (0);
 }
 
 static void	*ft_execute_philo(t_philo *philo_d, int fork1, int fork2)
@@ -124,7 +125,7 @@ static void	*ft_philo(void *arg)
 	int		fork2;
 
 	philo_d = (t_philo *)arg;
-	if (philo_d->philo == 1)
+	if (philo_d->n_philos == 1)
 		return (ft_one_philo(philo_d));
 	if (philo_d->philo - 1 > 0)
 		prev_philo = philo_d->philo - 2;
