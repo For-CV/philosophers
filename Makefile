@@ -3,6 +3,9 @@ SRC = philosophers.c\
 	utils.c\
 	parsing.c\
 	timeft.c\
+	init.c\
+	sim.c\
+	end.c
 	
 OBJ = $(SRC:.c=.o)
 CFLAGS += -g -O1 -pthread #-Wall -Wextra -Werror -fsanitize=thread

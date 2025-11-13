@@ -44,6 +44,7 @@ typedef struct	s_philo
 }	t_philo;
 
 void	*ft_calloc(size_t nmemb, size_t size);
+void	*ft_philo(void *arg);
 void	ft_free_list(t_philo **start);
 void	ft_usleep(long ms, t_philo *philo_d);
 void	ft_set_dead_m(t_philo *philo_d, int dead);
@@ -51,7 +52,9 @@ int		ft_atoi(char *s);
 int		ft_strlen(char *s);
 int		ft_parse(t_arg *data, char **argv);
 int		ft_set_timer(t_philo *node);
+int		ft_collect_philos(t_philo *philo_d, pthread_t **threads);
 long	ft_time_printer(t_philo *philo, int act);
 long	ft_get_time(void);
+t_philo	*ft_check_dead(t_philo *philo_d, int dead, pthread_t *philo);
 
 #endif
