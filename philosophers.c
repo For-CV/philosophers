@@ -69,6 +69,27 @@ static void *ft_one_philo(t_philo *philo_d)
 	return (NULL);
 }
 
+static int ft_exec_more_actions(t_philo *philo_d, int fork1, int fork2, int i)
+{
+	if (philo_d->n_to_eat && i == philo_d->n_to_eat - 1)
+	{
+		ft_unlock(philo_d, fork1, fork2);
+		return (ft_set_dead_m(philo_d, 1), 1);
+	}
+	ft_unlock(philo_d, fork1, fork2);
+	if (ft_time_printer(philo_d, SLEEP) < 0)
+	{
+		ft_unlock(philo_d, fork1, fork2);
+		return (ft_set_dead_m(philo_d, 1), 1);
+	}
+	ft_usleep(philo_d->t_to_sleep, philo_d);
+	if (ft_time_printer(philo_d, THINK) < 0)
+	{
+		ft_unlock(philo_d, fork1, fork2);
+		return (ft_set_dead_m(philo_d, 1), 1);
+	}
+}
+
 static void	*ft_execute_philo(t_philo *philo_d, int fork1, int fork2)
 {
 	int	i;
@@ -89,23 +110,8 @@ static void	*ft_execute_philo(t_philo *philo_d, int fork1, int fork2)
 			ft_unlock(philo_d, fork1, fork2);
 			return (ft_set_dead_m(philo_d, 1), NULL);
 		}
-		if (philo_d->n_to_eat && i == philo_d->n_to_eat - 1)
-		{
-			ft_unlock(philo_d, fork1, fork2);
-			return (ft_set_dead_m(philo_d, 1), NULL);
-		}
-		ft_unlock(philo_d, fork1, fork2);
-		if (ft_time_printer(philo_d, SLEEP) < 0)
-		{
-			ft_unlock(philo_d, fork1, fork2);
-			return (ft_set_dead_m(philo_d, 1), NULL);
-		}
-		ft_usleep(philo_d->t_to_sleep, philo_d);
-		if (ft_time_printer(philo_d, THINK) < 0)
-		{
-			ft_unlock(philo_d, fork1, fork2);
-			return (ft_set_dead_m(philo_d, 1), NULL);
-		}
+		if (ft_exec_more_actions(philo_d, fork1, fork2, i))
+			return (NULL);
 		i++;
 	}
 }
@@ -182,12 +188,20 @@ static void	*ft_init_philo(t_arg *data, t_philo **start)
 	return (NULL);
 }
 
-static void ft_set_philo(pthread_mutex_t *forks, pthread_mutex_t *printer, int *dead, t_philo **start)
+static int ft_set_philo(pthread_mutex_t *forks, int *dead, t_philo **start)
 {
-	t_philo	*node;
-	int	n_philos;
-	int	i;
+	t_philo			*node;
+	pthread_mutex_t	*printer;
+	int				n_philos;
+	int				i;
 
+	printer = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
+	if (!printer)
+	{
+		ft_free_list(start);
+		return (0);
+	}
+	pthread_mutex_init(printer, NULL);
 	i = 0;
 	node = *start;
 	n_philos = node->n_philos;
@@ -199,22 +213,23 @@ static void ft_set_philo(pthread_mutex_t *forks, pthread_mutex_t *printer, int *
 		node = node->next;
 		i++;
 	}
-	return ;
+	return (1);
 }
 
-static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, pthread_mutex_t *printer, int *dead)
+static t_philo	*ft_init_list(t_arg *data, pthread_mutex_t *forks, int *dead)
 {
 	t_philo *start;
 
 	start = (t_philo *)ft_calloc(1, sizeof(t_philo));
-	if (!start || !forks || !printer)
+	if (!start || !forks)
 		return (free(forks), ft_free_list(&start), NULL);
 	start->dead_m = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
 	if (!start->dead_m)
 		return (free(forks), ft_free_list(&start), NULL);
 	pthread_mutex_init(start->dead_m, NULL);
 	ft_init_philo(data, &start);
-	ft_set_philo(forks, printer, dead, &start);
+	if (!ft_set_philo(forks, dead, &start))
+		return (NULL);
 	return (start);
 }
 
@@ -223,15 +238,12 @@ static int	ft_create_philos(t_arg *data, int *dead)
 	pthread_t		*philo;
 	t_philo			*philo_d;
 	t_philo 		*head;
-	pthread_mutex_t	*printer;
 	int				i;
 
-	printer = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
-	philo_d = ft_init_list(data, ft_init_forks(data->n_philos), printer, dead);
+	philo_d = ft_init_list(data, ft_init_forks(data->n_philos), dead);
 	philo = (pthread_t *)ft_calloc(data->n_philos, sizeof(pthread_t));
-	if (!philo_d || !philo || !printer)
-		return (free(philo), free(printer), ft_free_list(&philo_d), 1);
-	pthread_mutex_init(printer, NULL);
+	if (!philo_d || !philo)
+		return (free(philo), ft_free_list(&philo_d), 1);
 	i = 0;
 	if (ft_set_timer(philo_d))
 		return (1);
@@ -246,7 +258,6 @@ static int	ft_create_philos(t_arg *data, int *dead)
 	ft_collect_philos(head, &philo);
 	ft_free_list(&head);
 	free(philo);
-	free(printer);
 	return (0);
 }
 

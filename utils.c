@@ -50,6 +50,7 @@ void	ft_free_list(t_philo **list)
 	start = *list;
 	free(philo_d->forks);
 	free(philo_d->dead_m);
+	free(philo_d->printer);
 	while  (philo_d)
 	{
 		next = philo_d->next;
