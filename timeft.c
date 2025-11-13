@@ -60,22 +60,8 @@ int	ft_set_timer(t_philo *node)
 	return (0);
 }
 
-long	ft_time_printer(t_philo *philo_d, int act)
+static inline long	ft_print_action(t_philo *philo_d, int act, suseconds_t current_t)
 {
-	suseconds_t		current_t;
-
-	current_t = ft_get_time();
-	if (current_t < 0)
-		return (-1);
-	if ((current_t - philo_d->last_meal_t) >= philo_d->t_to_die)
-		act = -1;
-	pthread_mutex_lock(philo_d->printer);
-	if (!philo_d->n_to_eat && *(philo_d->dead))
-	{
-		pthread_mutex_unlock(philo_d->printer);
-		return (-1);
-	}
-	printf("%ld ms %d", current_t - philo_d->start_t, philo_d->philo);
 	if (act == FORK)
 		printf(" has taken a fork\n");
 	else if (act == EAT)
@@ -97,5 +83,24 @@ long	ft_time_printer(t_philo *philo_d, int act)
 	}
 	if (act != EAT)
 		pthread_mutex_unlock(philo_d->printer);
-	return (0);
+		return (0);
+}
+
+long	ft_time_printer(t_philo *philo_d, int act)
+{
+	suseconds_t		current_t;
+
+	current_t = ft_get_time();
+	if (current_t < 0)
+		return (-1);
+	if ((current_t - philo_d->last_meal_t) >= philo_d->t_to_die)
+		act = -1;
+	pthread_mutex_lock(philo_d->printer);
+	if (!philo_d->n_to_eat && *(philo_d->dead))
+	{
+		pthread_mutex_unlock(philo_d->printer);
+		return (-1);
+	}
+	printf("%ld ms %d", current_t - philo_d->start_t, philo_d->philo);
+	return (ft_print_action(philo_d, act, current_t));
 }
