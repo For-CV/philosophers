@@ -1,0 +1,35 @@
+ - timeft.c:34-46 – ft_print_action unlocks the printer mutex twice for
+    the “is eating” event (once inside the EAT branch before ft_usleep, and
+    once again in the unconditional unlock at the end). After a philosopher
+    logs that it is eating, the mutex is already released, so the second
+    pthread_mutex_unlock triggers glibc’s mutex->__data.__owner == 0
+    assertion and aborts the program. Guard the final unlock (if (act !=
+    EAT)) or restructure so each code path releases the mutex exactly once.
+  - timeft.c:22-32 – ft_usleep treats its ms argument as milliseconds
+    when comparing with ft_get_time, but passes the same value directly to
+    usleep, which expects microseconds. For durations ≤200 the thread only
+    sleeps ms microseconds (1/1000 of the intended time), and for longer
+    sleeps it busy-loops using usleep(100) without ever compensating for
+    the remaining milliseconds. This makes the whole simulation run far
+    faster than requested and keeps cores spinning, so reported timestamps
+    and death timings are meaningless. Convert milliseconds to microseconds
+    when calling usleep and use a loop that actually waits for the remaining
+    duration.
+  - sim.c:25-35 – When a philosopher reaches n_to_eat, ft_exec_more_actions
+    signals ft_set_dead_m immediately. Because all philosophers share the
+    same dead flag, the very first philosopher to hit the quota shuts down
+    the entire run even if others still have meals pending. The subject
+    requires the simulation to stop only once all philosophers have eaten
+    n_to_eat times, so you need a shared counter or per‑philo tracking
+    rather than a global kill switch.
+  - sim.c:39-63 & timeft.c:45-63 – Death detection is tied to invocations of
+    ft_time_printer. A philosopher that exceeds time_to_die while sleeping,
+    thinking, or blocked on pthread_mutex_lock is not noticed until it
+    eventually reaches another logging call, so the “dies within 10 ms”
+    requirement is violated whenever time_to_sleep or the lock wait exceeds
+    10 ms. A dedicated monitor (or at least periodic checks in ft_usleep)
+    must compare ft_get_time() against last_meal_t so deaths are detected
+    even when the philosopher cannot log a new action.
+
+  Addressing these issues should stop the random aborts and bring the
+  simulation in line with the project’s timing and termination rules.
