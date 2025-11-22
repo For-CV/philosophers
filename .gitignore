@@ -1,6 +1,12 @@
 log.txt
-test_philo.sh
 es.subject.pdf.1
 main.c
-single.txt
-test.txt
+*.txt
+*old*
+*.md
+*pdf*
+.vscode
+philo
+*.out
+*.json*
+tests/2*

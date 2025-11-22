@@ -1,6 +1,6 @@
-#include "philo.h"
+#include "philo_bonus.h"
 
-static int	ft_isspace(const int	c)
+int	ft_isspace(const int	c)
 {
 	if (c == 32 || (c >= 9 && c <= 13))
 		return (1);
@@ -32,7 +32,7 @@ int	ft_special_atoi(const char *s)
 	int	digit;
 
 
-	if (!s || ft_strlen(s) == 0)
+	if (!s)
 		return (-1);
 	i = ft_skip_space(s);
 	if (i < 0)
@@ -51,10 +51,6 @@ int	ft_special_atoi(const char *s)
 	return (r);
 }
 
-
-// Rellena t_table con los argumentos de la CLI, imprime mensajes
-// de error si los hubiera
-// @return 1 en caso de éxito, 0 si los argumentos no son correctos
 int	ft_parse(t_table *table, char **argv)
 {
 	int	t;
@@ -78,7 +74,7 @@ int	ft_parse(t_table *table, char **argv)
 	if (argv[5])
 	{
 		table->n_to_eat = ft_special_atoi(argv[5]);
-		if (table->n_to_eat <= 0)
+		if (table->n_to_eat < 0)
 			return (write(2, "number_to_eat must be an int\n", 29), 0);
 	}
 	return (1);

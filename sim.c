@@ -1,92 +1,138 @@
-#include "philosophers.h"
+#include "philo.h"
 
-static void	ft_unlock(t_philo *philo_d, int first, int second)
+// Introducir un retraso después de empezar a pensar para que no
+// cojan tenedores tan rápidamente.
+
+static inline int	ft_delay(const t_philo *philo)
 {
-	if (philo_d->n_philos > 1)
-		pthread_mutex_unlock(&(philo_d->forks[second]));
-	pthread_mutex_unlock(&(philo_d->forks[first]));
+	long	delay;
+	int		sleep;
+
+	sleep = 0;
+	if (philo->t_to_eat >= philo->t_to_sleep && philo->t_to_die > 2 * philo->t_to_eat)
+	{
+		if (philo->t_to_die < (philo->t_to_eat + (philo->t_to_sleep\
+			- philo->t_to_sleep) + 10))
+			return (0);
+		delay = 0;
+		if (philo->t_to_eat > philo->t_to_sleep)
+			delay = philo->t_to_eat - philo->t_to_eat + 5;
+		sleep = ft_usleep(delay, philo);
+	}
+	return (sleep);
 }
 
-static void *ft_one_philo(t_philo *philo_d)
+// Ejecuta la acción de pensar.  @return Devuelve 1 si ha muerto éste
+// o algun otro filósofo ó 0 en caso de éxito.
+static inline int	ft_think(const t_philo *philo)
 {
-	long	t;
-	long	t2;
+	long	current_t;
+	int		dead;
 
-	t = ft_get_time();
-	usleep(philo_d->t_to_die * 1000);
-	t2 = ft_get_time();
-	printf("%ld ms %d  died\n", t2 - t, philo_d->philo);
-	pthread_mutex_lock(philo_d->dead_m);
-	*(philo_d->dead) = 1;
-	pthread_mutex_unlock(philo_d->dead_m);
+	current_t = ft_get_time();
+	dead = ft_check_dead(philo, current_t);
+	if (!dead)
+	{
+		ft_print_action(philo, current_t, THINK);
+		dead = ft_delay(philo);
+	}
+	return (dead);
+}
+
+// Ejecuta la acción de dormir.  @return Devuelve 1 si ha muerto éste
+// o algun otro filósofo ó 0 en caso de éxito.
+static inline int	ft_sleep(const t_philo *philo)
+{
+	long	current_t;
+	int		dead;
+
+	current_t = ft_get_time();
+	dead = ft_check_dead(philo, current_t);
+	if (!dead)
+	{
+		ft_print_action(philo, current_t, SLEEP);
+		dead = ft_usleep(philo->t_to_sleep, philo);
+	}
+	return (dead);
+}
+
+// Ejecuta la acción de comer. @return Devuelve 1 si ha muerto éste
+// o algun otro filósofo ó 0 en caso de éxito.
+static inline int	ft_eat(t_philo *philo)
+{
+	long	current_t;
+	int		dead;
+
+	current_t = ft_get_time();
+	dead = ft_check_dead(philo, current_t);
+	if (!dead)
+	{
+		ft_print_action(philo, current_t, EAT);
+		pthread_mutex_lock(philo->last_meal_mtx);
+		philo->last_meal_ms = current_t;
+		pthread_mutex_unlock(philo->last_meal_mtx);
+		dead = ft_usleep(philo->t_to_eat, philo);
+	}
+	pthread_mutex_unlock(philo->forks[philo->fork2]);
+	pthread_mutex_unlock(philo->forks[philo->fork1]);
+	return (dead);
+}
+
+// Ejecuta la acción de coger tenedores.  @return Devuelve 1 si ha muerto éste
+// o algun otro filósofo ó 0 en caso de éxito.
+int	ft_takefork(const t_philo *philo, const int fork)
+{
+	long	current_t;
+	int		dead;
+
+	pthread_mutex_lock(philo->forks[fork]);
+	current_t = ft_get_time();
+	dead = ft_check_dead(philo, current_t);	
+	if (!dead)
+		ft_print_action(philo, current_t, FORK);
+	return (dead);
+}
+
+// Ya en cada hilo, el filósofo ejecuta las acciones pertinentes
+void *ft_philo(void *arg)
+{
+	t_philo *philo;
+	int		i;
+
+	i = 0;
+	philo = (t_philo *)arg;
+	if (ft_wait_turn(philo))
+		return (NULL);
+	while (!philo->n_to_eat || i < philo->n_to_eat)
+	{
+		if (ft_take_both_forks(philo))
+			break ;
+		if (ft_eat(philo))
+			break;
+		if (ft_sleep(philo))
+			break ;
+		if (ft_think(philo))
+			break ;
+		i++;
+	}
 	return (NULL);
 }
 
-static int ft_exec_more_actions(t_philo *philo_d, int fork1, int fork2, int i)
+//Inicia un hilo por philósofo pasándole la estructura tphilo correspondiente.
+int	ft_start_sim(t_philo **philos)
 {
-	ft_unlock(philo_d, fork1, fork2);
-	if (philo_d->n_to_eat && i == philo_d->n_to_eat - 1)
-		return (ft_set_dead_m(philo_d, 1), 1);
-	if (ft_time_printer(philo_d, SLEEP) < 0)
-		return (ft_set_dead_m(philo_d, 1), 1);
-	ft_usleep(philo_d->t_to_sleep, philo_d);
-	if (ft_time_printer(philo_d, THINK) < 0)
-		return (ft_set_dead_m(philo_d, 1), 1);
+	pthread_t	monitoring;
+
+	if (ft_set_time(philos))
+		return (1);
+	philos[0]->threads = (pthread_t *)ft_calloc((*philos)->n_philos, sizeof(pthread_t));
+	if (!philos[0]->threads)
+		return (1);
+	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
+		return (write(2, "Error: pthread_create\n", 22), 1);
+	if (ft_create_threads(philos))
+		return (1);
+	ft_collect_philos(philos[0]->threads, philos);
+	pthread_join(monitoring, NULL);
 	return (0);
-}
-
-static void	*ft_execute_philo(t_philo *philo_d, int fork1, int fork2)
-{
-	int	i;
-	int	n_to_eat;
-
-	i = 0;
-	n_to_eat = philo_d->n_to_eat;
-	while (!n_to_eat || i < n_to_eat)
-	{
-		pthread_mutex_lock(&(philo_d->forks[fork1]));
-		if (philo_d->n_philos > 1)
-			pthread_mutex_lock(&(philo_d->forks[fork2]));
-		if (ft_time_printer(philo_d, FORK) < 0)
-		{
-			ft_unlock(philo_d, fork1, fork2);
-			return (ft_set_dead_m(philo_d, 1), NULL);
-		}
-		if (ft_time_printer(philo_d, EAT) < 0)
-		{
-			ft_unlock(philo_d, fork1, fork2);
-			return (ft_set_dead_m(philo_d, 1), NULL);
-		}
-		if (ft_exec_more_actions(philo_d, fork1, fork2, i))
-			return (NULL);
-		i++;
-	}
-}
-
-void	*ft_philo(void *arg)
-{
-	t_philo	*philo_d;
-	int		prev_philo;
-	int		fork1;
-	int		fork2;
-
-	philo_d = (t_philo *)arg;
-	if (philo_d->n_philos == 1)
-		return (ft_one_philo(philo_d));
-	if (philo_d->philo - 1 > 0)
-		prev_philo = philo_d->philo - 2;
-	else
-		prev_philo = philo_d->n_philos - 1;
-	if ((philo_d->philo % 2) == 0)
-	{
-		fork1 = philo_d->philo - 1;
-		fork2 = prev_philo;
-	}
-	else
-	{
-		fork1 = prev_philo;
-		fork2 = philo_d->philo - 1;
-	}
-	ft_execute_philo(philo_d, fork1, fork2);
-	return (ft_set_dead_m(philo_d, 1), NULL);
 }
