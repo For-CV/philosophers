@@ -81,6 +81,40 @@ flowchart TD
     CreatePhilos -.-> Think
 ```
 
+## Flujo del Programa (Parte Bonus)
+
+La parte bonus utiliza procesos en lugar de hilos, y semáforos para la sincronización. El flujo principal es el siguiente:
+
+### Diagrama de Flujo (Bonus)
+
+```mermaid
+flowchart TD
+    Start --> ParseInput{¿Argumentos válidos?}
+    ParseInput -- Sí --> InitData(Inicializar semáforos)
+    ParseInput -- No --> ShowError(Mostrar error) --> End
+    InitData --> CreateProcs(Crear procesos para los filósofos)
+    CreateProcs --> ParentWait(Proceso padre espera a los hijos)
+    ParentWait -- Todos los hijos terminan o uno muere --> KillProcs(Padre termina todos los hijos)
+    KillProcs --> FreeResources(Liberar semáforos) --> End
+
+    subgraph "Rutina del Filósofo (Proceso Hijo)"
+        subgraph "Monitor de Muerte (hilo)"
+             MonitorThread(Monitorizar filósofo) -- Muere --> PostDeathSemaphore(Publicar semáforo de muerte)
+        end
+        StartChild --> CreateMonitor(Crear hilo monitor)
+        CreateMonitor --> Think(Pensar)
+        Think --> WaitForks(Esperar en semáforo de tenedores)
+        WaitForks --> TakeForks(Tomar 2 tenedores)
+        TakeForks --> Eat(Comer)
+        Eat --> PostForks(Publicar en semáforo de tenedores)
+        PostForks --> ReleaseForks(Soltar 2 tenedores)
+        ReleaseForks --> Sleep(Dormir)
+        Sleep --> Think
+    end
+
+    CreateProcs -.-> StartChild
+```
+
 ## Cómo Compilar y Ejecutar
 
 Para compilar el proyecto, utiliza los siguientes comandos:
