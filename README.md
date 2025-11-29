@@ -121,6 +121,7 @@ Para compilar el proyecto, utiliza los siguientes comandos:
 
 *   **Parte Obligatoria:** `make`
 *   **Parte Bonus:** `make bonus`
+*   **Limpiar Bonus:** `make clean_bonus`
 *   **Tests:** `make test`
 
 Para ejecutar la simulación, pasa los siguientes argumentos:
