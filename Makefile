@@ -48,7 +48,6 @@ $(NAME): $(OBJ)
 bonus: $(BONUS_NAME)
 
 $(BONUS_NAME): $(BONUS_OBJ)
-	rm -f /dev/shm/sem.die /dev/shm/sem.forks /dev/shm/sem.seats /dev/shm/sem.printer
 	$(CC) $(CFLAGS) $(BONUS_OBJ) -o $(BONUS_NAME)
 
 %.o: %.c
@@ -69,6 +68,8 @@ $(TEST_RUNNER_C): $(TEST_C_FILES)
 clean:
 	rm -f $(OBJ) $(BONUS_OBJ)
 
+clean_bonus: clean
+	rm -f /dev/shm/sem.die /dev/shm/sem.forks /dev/shm/sem.seats /dev/shm/sem.printer	
 fclean: clean
 	rm -f $(NAME) $(BONUS_NAME) $(TEST_RUNNER_C)
 
