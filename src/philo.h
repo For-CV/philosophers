@@ -49,7 +49,7 @@ typedef struct	s_philo
 	pthread_t			*threads;
 }	t_philo;
 
-/* Estructura con los de los mutexes */
+/* Estructura con los mutexes */
 typedef struct s_mtxs
 {
 	pthread_mutex_t	*dead_mtx;
