@@ -3,38 +3,39 @@ BONUS_NAME = philo_bonus
 CC = cc
 CFLAGS += -g -pthread -Wall -Wextra -Werror -pedantic
 
-SRC = philo.c\
-	utils.c\
-	parsing.c\
-	time.c\
-	free.c\
-	sim.c\
-	sim2.c\
-	sim3.c\
-	create.c
+SRC = src/philo.c\
+	src/utils.c\
+	src/parsing.c\
+	src/time.c\
+	src/free.c\
+	src/sim.c\
+	src/sim2.c\
+	src/sim3.c\
+	src/create.c
 OBJ = $(SRC:.c=.o)
 
-BONUS_SRC = philo_bonus.c\
-	utils_bonus.c\
-	parsing_bonus.c\
-	sim_bonus.c\
-	sim2_bonus.c\
-	sim3_bonus.c\
-	free_bonus.c\
-	time_bonus.c\
-	wrappers_bonus.c
+BONUS_SRC = bonus_src/philo_bonus.c\
+	bonus_src/utils_bonus.c\
+	bonus_src/parsing_bonus.c\
+	bonus_src/sim_bonus.c\
+	bonus_src/sim2_bonus.c\
+	bonus_src/sim3_bonus.c\
+	bonus_src/free_bonus.c\
+	bonus_src/time_bonus.c\
+	bonus_src/wrappers_bonus.c
 BONUS_OBJ = $(BONUS_SRC:.c=.o)
 
 # Tests
 TEST_C_FILES = tests/test_units.c\
-			utils.c\
-			parsing.c\
-			time.c\
-			free.c\
-			sim.c\
-			sim2.c\
-			sim3.c\
-			create.c
+			tests/test_atoi.c\
+			src/utils.c\
+			src/parsing.c\
+			src/time.c\
+			src/free.c\
+			src/sim.c\
+			src/sim2.c\
+			src/sim3.c\
+			src/create.c
 
 TEST_SH_FILES = tests/test_units.sh
 TEST_RUNNER_C = test_runner_c
