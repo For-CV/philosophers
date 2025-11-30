@@ -5,12 +5,15 @@ static void	ft_print_dead(const t_philo *philo)
 {
 	long	current_t;
 
-	current_t = ft_get_time();
 	pthread_mutex_lock(philo->printer);
+	current_t = ft_get_time();
 	if (current_t >= 0)
-		printf("%ld ms %d died\n", current_t - philo->start_ms, philo->philo_id);
+		ft_putlng_fd(current_t - philo->start_ms, 1);
 	else
-		printf("%ld ms %d died\n", current_t, philo->philo_id);
+		ft_putlng_fd(current_t, 1);
+	write(1, " ms ", 4);
+	ft_putlng_fd((long)philo->philo_id, 1);
+	write(1, " died\n", 6);
 	pthread_mutex_unlock(philo->printer);
 }
 
@@ -25,32 +28,35 @@ void	*ft_monitoring(void *arg)
 
 	philos = (t_philo **)arg;
 	i = 0;
+	dead = 0;
 	while (1)
 	{
+		if (philos[0]->finished == philos[0]->n_philos)
+			break ;
 		if (i >= philos[0]->n_philos)
 			i = 0;
-		pthread_mutex_lock(philos[0]->dead_mtx);
+		pthread_mutex_lock(philos[0]->dead_m);
 		if (*(philos[0]->dead))
 		{
-			dead = *(philos[0]->dead) - 1;
-			if (dead >= 0)
+			dead = *(philos[0]->dead);
+			if (dead > 0)
 				ft_print_dead(philos[dead]);
-			pthread_mutex_unlock(philos[0]->dead_mtx);
+			pthread_mutex_unlock(philos[0]->dead_m);
 			break ;
 		}
-		pthread_mutex_unlock(philos[0]->dead_mtx);
+		pthread_mutex_unlock(philos[0]->dead_m);
 		current_t = ft_get_time();
 		pthread_mutex_lock(philos[0]->last_meal_mtx);
-		if (current_t - philos[i]->last_meal_ms > philos[i]->t_to_die)
+		if (current_t - philos[i]->last_meal_ms > philos[i]->t_to_die && philos[0]->finished != philos[0]->n_philos)
 		{
 			pthread_mutex_unlock(philos[0]->last_meal_mtx);
 			ft_print_dead(philos[i]);
-			pthread_mutex_lock(philos[0]->dead_mtx);
+			pthread_mutex_lock(philos[0]->dead_m);
 			*(philos[i]->dead) = -1;
-			pthread_mutex_unlock(philos[0]->dead_mtx);
+			pthread_mutex_unlock(philos[0]->dead_m);
 		}
 		else
-		pthread_mutex_unlock(philos[0]->last_meal_mtx);
+			pthread_mutex_unlock(philos[0]->last_meal_mtx);
 		usleep(100);
 		i++;
 	}
@@ -95,3 +101,23 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
+void    ft_putlng_fd(long n, int fd)
+{
+	long	nbr;
+
+	if (n == LONG_MIN)
+	{
+		write(fd, "-9223372036854775808", 20);
+		return ;
+	}
+	if (n < 0)
+	{
+		write (fd, "-", 1);
+		n = -n;
+	}
+	nbr = n;
+	if (nbr > 9)
+		ft_putlng_fd(n / 10, fd);
+	nbr = (n % 10) + 48;
+	write (fd, &nbr, 1);
+}

@@ -3,6 +3,7 @@ BONUS_NAME = philo_bonus
 CC = cc
 CFLAGS += -g -pthread -Wall -Wextra -Werror -pedantic
 
+# Obligatory
 SRC = src/main.c\
 	src/utils.c\
 	src/parsing.c\
@@ -14,6 +15,7 @@ SRC = src/main.c\
 	src/create.c
 OBJ = $(SRC:.c=.o)
 
+# Bonus
 BONUS_SRC = bonus_src/philo_bonus.c\
 	bonus_src/utils_bonus.c\
 	bonus_src/parsing_bonus.c\
@@ -27,15 +29,15 @@ BONUS_OBJ = $(BONUS_SRC:.c=.o)
 
 # Tests
 TEST_C_FILES = tests/test_units.c\
-			tests/test_atoi.c\
-			src/utils.c\
-			src/parsing.c\
-			src/time.c\
-			src/free.c\
-			src/sim.c\
-			src/sim2.c\
-			src/sim3.c\
-			src/create.c
+	tests/test_atoi.c\
+	src/utils.c\
+	src/parsing.c\
+	src/time.c\
+	src/free.c\
+	src/sim.c\
+	src/sim2.c\
+	src/sim3.c\
+	src/create.c
 
 TEST_SH_FILES = tests/test_units.sh
 TEST_RUNNER_C = test_runner_c

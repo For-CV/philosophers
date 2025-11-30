@@ -31,21 +31,23 @@ void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
 		i++;
 	}
 	free(mtxs->forks);
-	if (mtxs->dead_mtx)
-			pthread_mutex_destroy(mtxs->dead_mtx);
-	free(mtxs->dead_mtx);
+	if (mtxs->dead_m)
+			pthread_mutex_destroy(mtxs->dead_m);
+	free(mtxs->dead_m);
 	if (mtxs->last_meal_mtx)
 			pthread_mutex_destroy(mtxs->last_meal_mtx);
 	free(mtxs->last_meal_mtx);
 	if (mtxs->printer)
 			pthread_mutex_destroy(mtxs->printer);
 	free(mtxs->printer);
-	free(mtxs);
+	if (mtxs->finished_mtx)
+			pthread_mutex_destroy(mtxs->finished_mtx);
+	free(mtxs->finished_mtx);
 }
 
 // Libera las estructuras de cada filósofo y el array, incluidos
 // los mutexes. El flag initiated es para saber si los mutexes
-// printer y dead_mtx están iniciados con pthread_mute_init.
+// printer y dead_m están iniciados con pthread_mute_init.
 void	ft_free_philos(t_philo **philo)
 {
 	int		n_philos;

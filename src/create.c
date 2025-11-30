@@ -52,7 +52,7 @@ int	ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *de
 		philos[i]->t_to_sleep = table->t_to_sleep;
 		philos[i]->n_to_eat = table->n_to_eat;
 		philos[i]->printer = mtxs->printer;
-		philos[i]->dead_mtx = mtxs->dead_mtx;
+		philos[i]->dead_m = mtxs->dead_m;
 		philos[i]->last_meal_mtx = mtxs->last_meal_mtx;
 		philos[i]->dead = dead;
 		philos[i]->forks = mtxs->forks;
@@ -93,21 +93,18 @@ t_philo  **ft_create_philos(const t_table *table, t_mtxs *mtxs)
 
 
 // Crea e inicia los mutexes.
-// @return Array de mutexes o NULL en caso de error.
-t_mtxs	*ft_init_mtxs(int n_philos)
+// @return 0 en caso de éxito o 1 en caso de error.
+int	ft_init_mtxs(t_mtxs *mtxs, const int n_philos)
 {
-	int				i;
-	t_mtxs			*mtxs;
+	int	i;
 
-	mtxs = (t_mtxs *)ft_calloc(1, sizeof(t_mtxs));
-	if (!mtxs)
-		return (NULL);
-	mtxs->dead_mtx = ft_make_mtx();
+	mtxs->dead_m = ft_make_mtx();
 	mtxs->printer = ft_make_mtx();
 	mtxs->last_meal_mtx = ft_make_mtx();
+	mtxs->finished_mtx = ft_make_mtx();
 	mtxs->forks = (pthread_mutex_t **)ft_calloc(n_philos, sizeof(pthread_mutex_t *));
-	if (!mtxs->dead_mtx || !mtxs->printer || !mtxs->last_meal_mtx || !mtxs->forks)
-		return (ft_free_mtxs(mtxs, 0), NULL);
+	if (!mtxs->dead_m || !mtxs->printer || !mtxs->last_meal_mtx || !mtxs->forks || !mtxs->finished_mtx)
+		return (ft_free_mtxs(mtxs, 0), 1);
 	i = 0;
 	while (i < n_philos)
 		mtxs->forks[i++] = NULL;
@@ -118,9 +115,9 @@ t_mtxs	*ft_init_mtxs(int n_philos)
 		if (!mtxs->forks[i])
 		{
 			ft_free_mtxs(mtxs, i);
-			return (NULL);
+			return (1);
 		}
 		i++;
 	}
-	return (mtxs);
+	return (0);
 }

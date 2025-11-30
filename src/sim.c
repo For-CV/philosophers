@@ -12,7 +12,7 @@ static inline int	ft_think(const t_philo *philo)
 	dead = ft_check_dead(philo, current_t);
 	if (!dead)
 	{
-		ft_print_action(philo, current_t, THINK);
+		ft_print_action(philo, THINK);
 		if (philo->n_philos % 2 != 0)
 			dead = ft_usleep(philo->t_to_eat * 0.9, philo);
 	}
@@ -30,7 +30,7 @@ static inline int	ft_sleep(const t_philo *philo)
 	dead = ft_check_dead(philo, current_t);
 	if (!dead)
 	{
-		ft_print_action(philo, current_t, SLEEP);
+		ft_print_action(philo, SLEEP);
 		dead = ft_usleep(philo->t_to_sleep, philo);
 	}
 	return (dead);
@@ -47,7 +47,7 @@ static inline int	ft_eat(t_philo *philo)
 	dead = ft_check_dead(philo, current_t);
 	if (!dead)
 	{
-		ft_print_action(philo, current_t, EAT);
+		ft_print_action(philo, EAT);
 		pthread_mutex_lock(philo->last_meal_mtx);
 		philo->last_meal_ms = current_t;
 		pthread_mutex_unlock(philo->last_meal_mtx);
@@ -69,7 +69,7 @@ int	ft_takefork(const t_philo *philo, const int fork)
 	current_t = ft_get_time();
 	dead = ft_check_dead(philo, current_t);	
 	if (!dead)
-		ft_print_action(philo, current_t, FORK);
+		ft_print_action(philo, FORK);
 	return (dead);
 }
 
@@ -85,6 +85,12 @@ void *ft_philo(void *arg)
 		usleep(1000);
 	while (!philo->n_to_eat || i < philo->n_to_eat)
 	{
+		if (philo->n_to_eat && i == philo->n_to_eat)
+		{
+			pthread_mutex_lock(philo->finished_mtx);
+			philo->finished = 1;
+			pthread_mutex_unlock(philo->finished_mtx);
+		}
 		if (ft_take_both_forks(philo))
 			break ;
 		if (ft_eat(philo))
@@ -102,6 +108,7 @@ void *ft_philo(void *arg)
 int	ft_start_sim(t_philo **philos)
 {
 	pthread_t	monitoring;
+	pthread_t	finished;
 
 	if (ft_set_time(philos))
 		return (1);
@@ -110,9 +117,12 @@ int	ft_start_sim(t_philo **philos)
 		return (1);
 	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
+	if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
+		return (write(2, "Error: pthread_create\n", 22), 1);
 	if (ft_create_threads(philos))
 		return (1);
 	ft_collect_philos(philos[0]->threads, philos);
 	pthread_join(monitoring, NULL);
+	pthread_join(finished, NULL);
 	return (0);
 }

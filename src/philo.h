@@ -39,12 +39,14 @@ typedef struct	s_philo
 	int					n_to_eat;
 	long				last_meal_ms;
 	long				start_ms;
+	int					finished;
 	int					*dead;
 	int					fork1;
 	int					fork2;
 	pthread_mutex_t		**forks;
 	pthread_mutex_t		*printer;
-	pthread_mutex_t		*dead_mtx;
+	pthread_mutex_t		*dead_m;
+	pthread_mutex_t		*finished_mtx;
 	pthread_mutex_t		*last_meal_mtx;
 	pthread_t			*threads;
 }	t_philo;
@@ -52,42 +54,50 @@ typedef struct	s_philo
 /* Estructura con los mutexes */
 typedef struct s_mtxs
 {
-	pthread_mutex_t	*dead_mtx;
+	pthread_mutex_t	*dead_m;
 	pthread_mutex_t	*printer;
 	pthread_mutex_t	*last_meal_mtx;
+	pthread_mutex_t	*finished_mtx;
 	pthread_mutex_t	**forks;
 }	t_mtxs;
 
 /* Utils and parsing */
+
 void			*ft_calloc(const size_t nmemb, const size_t size);
 int				ft_parse(t_table *table, char **argv);
 int				ft_strlen(const char *s);
 int				ft_special_atoi(const char *s);
+void    		ft_putlng_fd(long n, int fd);
 
 /* Creating resources */
-t_mtxs			*ft_init_mtxs(int n_philos);
+
+int				ft_init_mtxs(t_mtxs *mtxs, const int n_philos);
 int				ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *dead);
-t_philo 		 **ft_create_philos(const t_table *table, t_mtxs *mtxs);
+t_philo 		**ft_create_philos(const t_table *table, t_mtxs *mtxs);
 
 /* Time relative */
+
 int				ft_set_time(t_philo **philos);
 long			ft_get_time(void);
 int				ft_usleep(const long ms, const t_philo *philo);
 
 /* Freeing memory and liberating resources */
+
 void			ft_free_mtxs(t_mtxs *mtxs, const int n_philos);
 void			ft_free_philos(t_philo **philo);
 void			ft_collect_philos(pthread_t *threads, t_philo **philos);
 
 /* Simulation */
+
 int				ft_start_sim(t_philo **philos);
 void			ft_set_death(const t_philo *philo);
 void			*ft_monitoring(void *arg);
-void			ft_print_action(const t_philo *philo, const long current_t, const int action);
+void			ft_print_action(const t_philo *philo, const int action);
 int				ft_check_dead(const t_philo *philo, const long current_t);
 void 			*ft_philo(void *arg);
 int				ft_create_threads(t_philo **philos);
 int				ft_takefork(const t_philo *philo, const int fork);
 int				ft_take_both_forks(const t_philo *philo);
+void			*ft_check_finished(void *arg);
 
 #endif
