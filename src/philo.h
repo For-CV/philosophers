@@ -83,7 +83,6 @@ void			ft_collect_philos(pthread_t *threads, t_philo **philos);
 int				ft_start_sim(t_philo **philos);
 void			ft_set_death(const t_philo *philo);
 void			*ft_monitoring(void *arg);
-int				ft_wait_turn(const t_philo *philo);
 void			ft_print_action(const t_philo *philo, const long current_t, const int action);
 int				ft_check_dead(const t_philo *philo, const long current_t);
 void 			*ft_philo(void *arg);

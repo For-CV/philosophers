@@ -3,7 +3,7 @@ BONUS_NAME = philo_bonus
 CC = cc
 CFLAGS += -g -pthread -Wall -Wextra -Werror -pedantic
 
-SRC = src/philo.c\
+SRC = src/main.c\
 	src/utils.c\
 	src/parsing.c\
 	src/time.c\

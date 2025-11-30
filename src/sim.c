@@ -1,28 +1,7 @@
 #include "philo.h"
 
-// Introducir un retraso después de empezar a pensar para que no
-// cojan tenedores tan rápidamente.
-
-static inline int	ft_delay(const t_philo *philo)
-{
-	long	delay;
-	int		sleep;
-
-	sleep = 0;
-	if (philo->t_to_eat >= philo->t_to_sleep && philo->t_to_die > 2 * philo->t_to_eat)
-	{
-		if (philo->t_to_die < (philo->t_to_eat + (philo->t_to_sleep\
-			- philo->t_to_sleep) + 10))
-			return (0);
-		delay = 0;
-		if (philo->t_to_eat > philo->t_to_sleep)
-			delay = philo->t_to_eat - philo->t_to_eat + 5;
-		sleep = ft_usleep(delay, philo);
-	}
-	return (sleep);
-}
-
-// Ejecuta la acción de pensar.  @return Devuelve 1 si ha muerto éste
+// Ejecuta la acción de pensar (en caso de un número impar de filósofos,
+// introduce un pequeño delay).  @return Devuelve 1 si ha muerto éste
 // o algun otro filósofo ó 0 en caso de éxito.
 static inline int	ft_think(const t_philo *philo)
 {
@@ -34,7 +13,8 @@ static inline int	ft_think(const t_philo *philo)
 	if (!dead)
 	{
 		ft_print_action(philo, current_t, THINK);
-		dead = ft_delay(philo);
+		if (philo->n_philos % 2 != 0)
+			dead = ft_usleep(philo->t_to_eat * 0.9, philo);
 	}
 	return (dead);
 }
@@ -101,8 +81,8 @@ void *ft_philo(void *arg)
 
 	i = 0;
 	philo = (t_philo *)arg;
-	if (ft_wait_turn(philo))
-		return (NULL);
+	if (philo->philo_id % 2 == 0)
+		usleep(1000);
 	while (!philo->n_to_eat || i < philo->n_to_eat)
 	{
 		if (ft_take_both_forks(philo))
