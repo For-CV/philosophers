@@ -4,18 +4,20 @@
 // de creación.
 int	ft_wait_turn(const t_philo *philo)
 {
-	long	delay;
+	long    t_eat;
+    long    t_sleep;
+    long    delay;
 
-	if (philo->n_philos <= 1)
-		return (0);
-	delay = 0;
-	if ((philo->philo_id % 2) == 0)
-		delay = philo->t_to_eat / 2;
-	if ((philo->philo_id % 2) != 0)
-		delay = philo->t_to_sleep / 2;
-	if (delay <= 0)
-		return (0);
-	return (ft_usleep(delay, philo));
+	if (philo->n_philos % 2 == 0)
+        return (0);
+    t_eat = philo->t_to_eat;
+    t_sleep = philo->t_to_sleep;
+    delay = 0;
+	if (t_eat >= t_sleep)
+        delay = (t_eat - t_sleep) + 1;
+	if (delay > 0)
+    	ft_usleep(delay * 0.9, philo);
+	return (0);
 }
 
 /* Imprime la acción pertinente, el id del filósofo que la realiza */
