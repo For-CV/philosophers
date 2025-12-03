@@ -48,7 +48,7 @@ int	ft_usleep(const long ms, const t_philo *philo)
 			return (1);
 		}
 		pthread_mutex_unlock(philo->dead_m);
-		if (ft_get_time() - philo->last_meal_ms >= philo->t_to_die)
+		if (ft_get_time() - philo->last_meal_ms > philo->t_to_die)
 			return (ft_set_death(philo), 2);
 		if (ft_get_time() - start >= ms)
 			return (0);

@@ -40,16 +40,16 @@ static inline int	ft_sleep(const t_philo *philo)
 // o algun otro filósofo ó 0 en caso de éxito.
 static inline int	ft_eat(t_philo *philo)
 {
-	long	current_t;
+	// long	current_t;
 	int		dead;
 
-	current_t = ft_get_time();
-	dead = ft_check_dead(philo, current_t);
+	// current_t = ft_get_time();
+	dead = ft_check_dead(philo, ft_get_time());
 	if (!dead)
 	{
 		ft_print_action(philo, EAT);
 		pthread_mutex_lock(philo->last_meal_mtx);
-		philo->last_meal_ms = current_t;
+		philo->last_meal_ms = ft_get_time();
 		pthread_mutex_unlock(philo->last_meal_mtx);
 		dead = ft_usleep(philo->t_to_eat, philo);
 	}
@@ -108,21 +108,21 @@ void *ft_philo(void *arg)
 int	ft_start_sim(t_philo **philos)
 {
 	pthread_t	monitoring;
-	pthread_t	finished;
+	// pthread_t	finished;
 
 	if (ft_set_time(philos))
 		return (1);
 	philos[0]->threads = (pthread_t *)ft_calloc((*philos)->n_philos, sizeof(pthread_t));
 	if (!philos[0]->threads)
 		return (1);
-	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
-		return (write(2, "Error: pthread_create\n", 22), 1);
-	if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
-		return (write(2, "Error: pthread_create\n", 22), 1);
+	// if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
+	// 	return (write(2, "Error: pthread_create\n", 22), 1);
 	if (ft_create_threads(philos))
 		return (1);
+	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
+		return (write(2, "Error: pthread_create\n", 22), 1);
 	ft_collect_philos(philos[0]->threads, philos);
 	pthread_join(monitoring, NULL);
-	pthread_join(finished, NULL);
+	// pthread_join(finished, NULL);
 	return (0);
 }

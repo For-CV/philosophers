@@ -40,7 +40,7 @@ void	ft_print_action(const t_philo *philo, const int action)
 	if (current_t < 0)
 		return (pthread_mutex_unlock(philo->dead_m), ft_set_death(philo), 1);
 	pthread_mutex_lock(philo->last_meal_mtx);
-	if (philo->t_to_die < (current_t - philo->last_meal_ms) && *(philo->dead))
+	if ((current_t - philo->last_meal_ms) > philo->t_to_die || *(philo->dead))
 	{
 		pthread_mutex_unlock(philo->last_meal_mtx);
 		if (*(philo->dead))

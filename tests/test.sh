@@ -4,7 +4,7 @@
 ft_get_log() {
     local log_files=(
         "odd_easy_survive.txt"
-        "odd_10ms_survive.txt"
+        "odd_die.txt"
         "even_10ms_survive.txt"
         "even_difficult_survive?.txt"
         "one_philo.txt"
@@ -33,7 +33,8 @@ ft_test_source()
 i=0
 while read -r linea || [ -n "$linea" ]; do
 	archivo=$(ft_get_log $i)
-	$linea >>$log_dir$archivo 2>>$log_dir$archivo
+	duracion=5
+	timeout --foreground "$duracion" $linea >>"$log_dir$archivo" 2>>"$log_dir$archivo"
 	PID_PHILO=$!
 	wait $PID_PHILO
 	EXIT_CODE=$?
