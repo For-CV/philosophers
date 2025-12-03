@@ -40,7 +40,7 @@ void	*ft_monitoring(void *arg)
 		{
 			dead = *(philos[0]->dead);
 			if (dead > 0)
-				ft_print_dead(philos[dead]);
+				ft_print_dead(philos[dead - 1]);
 			pthread_mutex_unlock(philos[0]->dead_m);
 			break ;
 		}

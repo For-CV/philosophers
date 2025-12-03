@@ -21,6 +21,8 @@ int	ft_set_time(t_philo **philos)
 	return (0);
 }
 
+/* Gets the current time since Epoch in miliseconds. If gettimeofday fails,
+ writes the error message and returns -1 */
 long	ft_get_time(void)
 {
 	struct timeval	tv;

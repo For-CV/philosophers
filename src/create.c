@@ -87,7 +87,6 @@ t_philo  **ft_create_philos(const t_table *table, t_mtxs *mtxs)
 		}
 		i++;
 	}
-	ft_free_mtxs(mtxs, philos[0]->n_philos);
 	return (philos);
 }
 

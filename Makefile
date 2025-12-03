@@ -39,7 +39,7 @@ TEST_C_FILES = tests/test_units.c\
 	src/sim3.c\
 	src/create.c
 
-TEST_SH_FILES = tests/test_units.sh
+TEST_SH_FILES = tests/test.sh
 TEST_RUNNER_C = test_runner_c
 
 all: $(NAME)
