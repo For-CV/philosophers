@@ -20,6 +20,7 @@
 # define EAT 2
 # define SLEEP 3
 # define THINK 4
+# define MAX_PHILOS 200
 # ifndef NAME_MAX
 #  define NAME_MAX 255
 # endif

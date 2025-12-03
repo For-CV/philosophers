@@ -30,6 +30,7 @@ BONUS_OBJ = $(BONUS_SRC:.c=.o)
 # Tests
 TEST_C_FILES = tests/test_units.c\
 	tests/test_atoi.c\
+	tests/test_parse.c\
 	src/utils.c\
 	src/parsing.c\
 	src/time.c\

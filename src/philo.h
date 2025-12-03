@@ -17,6 +17,7 @@
 # define EAT 2
 # define SLEEP 3
 # define THINK 4
+# define MAX_PHILOS 200
 
 /* Table with the arguments passed to the program */
 typedef struct	s_table
@@ -51,7 +52,7 @@ typedef struct	s_philo
 	pthread_t			*threads;
 }	t_philo;
 
-/* Estructura con los mutexes */
+/* Structure with all mutexes */
 typedef struct s_mtxs
 {
 	pthread_mutex_t	*dead_m;

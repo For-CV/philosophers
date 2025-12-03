@@ -83,23 +83,24 @@ void *ft_philo(void *arg)
 	philo = (t_philo *)arg;
 	if (philo->philo_id % 2 == 0)
 		usleep(1000);
-	while (!philo->n_to_eat || i < philo->n_to_eat)
+	while (!philo->n_to_eat || i <= (philo->n_to_eat + 1))
 	{
-		if (philo->n_to_eat && i == philo->n_to_eat)
-		{
-			pthread_mutex_lock(philo->finished_mtx);
-			philo->finished = 1;
-			pthread_mutex_unlock(philo->finished_mtx);
-		}
 		if (ft_take_both_forks(philo))
 			break ;
 		if (ft_eat(philo))
 			break;
+		i++;
 		if (ft_sleep(philo))
 			break ;
 		if (ft_think(philo))
 			break ;
-		i++;
+		if (philo->n_to_eat && (i == philo->n_to_eat))
+		{
+			pthread_mutex_lock(philo->finished_mtx);
+			philo->finished = 1;
+			pthread_mutex_unlock(philo->finished_mtx);
+			break ;
+		}
 	}
 	return (NULL);
 }
@@ -108,21 +109,21 @@ void *ft_philo(void *arg)
 int	ft_start_sim(t_philo **philos)
 {
 	pthread_t	monitoring;
-	// pthread_t	finished;
+	pthread_t	finished;
 
 	if (ft_set_time(philos))
 		return (1);
 	philos[0]->threads = (pthread_t *)ft_calloc((*philos)->n_philos, sizeof(pthread_t));
 	if (!philos[0]->threads)
 		return (1);
-	// if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
-	// 	return (write(2, "Error: pthread_create\n", 22), 1);
+	if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
+		return (write(2, "Error: pthread_create\n", 22), 1);
 	if (ft_create_threads(philos))
 		return (1);
 	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
 	ft_collect_philos(philos[0]->threads, philos);
 	pthread_join(monitoring, NULL);
-	// pthread_join(finished, NULL);
+	pthread_join(finished, NULL);
 	return (0);
 }

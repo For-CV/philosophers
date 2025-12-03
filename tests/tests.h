@@ -11,6 +11,8 @@
 
 /* Unitary */
 int	ft_test_atoi();
+int	ft_test_parse();
 int	ft_get_line(int fd, char s[100]);
+void    ft_putnbr_fd(int n, int fd);
 
 #endif

@@ -6,34 +6,6 @@
 #include "tests.h"
 
 #define FDS 2
-/*
-char	*ft_strjoin(char *s1, char *s2)
-{
-	char	*r;
-	size_t	i;
-	size_t	j;
-
-	if (!s1 || !s2)
-		return (NULL);
-	r = (char *)ft_calloc(strlen(s1) + strlen(s2) + 1, sizeof(char));
-	if (!r)
-		return (write(2, "Error: malloc\n", 14), NULL);
-	i = 0;	
-	while (i < strlen(s1))
-	{
-		r[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (j < strlen(s2))
-	{
-		r[i] = s2[j];
-		i++;
-		j++;
-	}
-	return (r);
-}
-*/
 
 int	ft_get_line(int fd, char s[100])
 {
@@ -62,7 +34,7 @@ int	ft_get_line(int fd, char s[100])
 	return (1);
 }
 
-int	main()
+static int run_atoi_tests(void)
 {
 	int		fd[2];
 	char	s[100];
@@ -86,4 +58,41 @@ int	main()
 	}
 	close(fd[0]);
 	close(fd[1]);
+	return (0);
+}
+
+static int run_parse_tests(void)
+{
+	int		fd[2];
+	char	s[100];
+	int		i;
+	int		line;
+
+	fd[0] = open("../tests_parse.txt", O_RDONLY);
+	if (fd[0] < 0)
+		return (write(2, "Error: can't open tests_parse.txt\n", 34), 1);
+	fd[1] = open("parse_log.txt", O_RDWR | O_CREAT, 0644);
+	if (fd[1] < 0)
+		return (write(2, "Error: can't open parse_log.txt\n", 32), 1);
+	i = 1;
+	line = 1;
+	while (line)
+	{
+		line = ft_get_line(fd[0], s);
+		if (line)
+			ft_test_parse(i, s, fd[1]);
+		i++;
+	}
+	close(fd[0]);
+	close(fd[1]);
+	return (0);
+}
+
+int	main()
+{
+	if (run_atoi_tests() != 0)
+		return (1);
+	if (run_parse_tests() != 0)
+		return (1);
+	return (0);
 }

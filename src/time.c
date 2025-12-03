@@ -42,16 +42,15 @@ int	ft_usleep(const long ms, const t_philo *philo)
 	while (1)
 	{
 		pthread_mutex_lock(philo->dead_m);
-		if (*(philo->dead))
+		if (*(philo->dead) && *(philo->dead) != -2)
 		{
 			pthread_mutex_unlock(philo->dead_m);
 			return (1);
 		}
-		pthread_mutex_unlock(philo->dead_m);
-		if (ft_get_time() - philo->last_meal_ms > philo->t_to_die)
-			return (ft_set_death(philo), 2);
-		if (ft_get_time() - start >= ms)
-			return (0);
+		        pthread_mutex_unlock(philo->dead_m);
+		        if (ft_get_time() - philo->last_meal_ms >= philo->t_to_die)
+		            return (2);
+		        if (ft_get_time() - start >= ms)			return (0);
 		usleep(50);
 	}
 	return (0);

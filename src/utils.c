@@ -31,29 +31,30 @@ void	*ft_monitoring(void *arg)
 	dead = 0;
 	while (1)
 	{
-		if (philos[0]->finished == philos[0]->n_philos)
-			break ;
 		if (i >= philos[0]->n_philos)
 			i = 0;
 		pthread_mutex_lock(philos[0]->dead_m);
-		if (*(philos[0]->dead))
+		dead = *(philos[0]->dead);
+		if (dead)
 		{
-			dead = *(philos[0]->dead);
-			if (dead > 0)
-				ft_print_dead(philos[dead - 1]);
 			pthread_mutex_unlock(philos[0]->dead_m);
 			break ;
 		}
 		pthread_mutex_unlock(philos[0]->dead_m);
-		current_t = ft_get_time();
 		pthread_mutex_lock(philos[0]->last_meal_mtx);
-		if (current_t - philos[i]->last_meal_ms > philos[i]->t_to_die && philos[0]->finished != philos[0]->n_philos)
+		current_t = ft_get_time();
+		if (current_t - philos[i]->last_meal_ms > philos[i]->t_to_die)
 		{
 			pthread_mutex_unlock(philos[0]->last_meal_mtx);
-			ft_print_dead(philos[i]);
 			pthread_mutex_lock(philos[0]->dead_m);
-			*(philos[i]->dead) = -1;
-			pthread_mutex_unlock(philos[0]->dead_m);
+			if (!*(philos[0]->dead))
+			{
+				*(philos[i]->dead) = i + 1;
+				pthread_mutex_unlock(philos[0]->dead_m);
+				ft_print_dead(philos[i]);
+			}
+			else
+				pthread_mutex_unlock(philos[0]->dead_m);
 		}
 		else
 			pthread_mutex_unlock(philos[0]->last_meal_mtx);

@@ -54,6 +54,7 @@ int	ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *de
 		philos[i]->printer = mtxs->printer;
 		philos[i]->dead_m = mtxs->dead_m;
 		philos[i]->last_meal_mtx = mtxs->last_meal_mtx;
+		philos[i]->finished_mtx = mtxs->finished_mtx;
 		philos[i]->dead = dead;
 		philos[i]->forks = mtxs->forks;
 		ft_assign_forks(philos[i], i + 1);
