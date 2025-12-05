@@ -111,6 +111,46 @@ El proyecto está dividido en dos partes principales: la parte obligatoria (`src
 *   `bonus_src/`: Código de la parte bonus (Procesos + Semáforos).
 *   `tests/`: Scripts y código fuente de pruebas.
 
+### Gestión de Recursos (Parte Obligatoria)
+
+El siguiente diagrama ilustra cómo se comparten los recursos (mutex y variables) entre los hilos de los filósofos y el hilo principal/monitor.
+
+```mermaid
+graph TD
+    subgraph "Recursos Compartidos (Heap)"
+        Forks[Mutex Tenedores (Array)]
+        Printer[Mutex Impresión]
+        DeadM[Mutex Muerte]
+        MealM[Mutex Última Comida]
+        DeadFlag[Flag Muerte (int*)]
+    end
+
+    subgraph "Filósofo 1 (Hilo)"
+        P1_Struct[t_philo]
+        P1_Struct --> Forks
+        P1_Struct --> Printer
+        P1_Struct --> DeadM
+        P1_Struct --> MealM
+        P1_Struct --> DeadFlag
+    end
+
+    subgraph "Filósofo 2 (Hilo)"
+        P2_Struct[t_philo]
+        P2_Struct --> Forks
+        P2_Struct --> Printer
+        P2_Struct --> DeadM
+        P2_Struct --> MealM
+        P2_Struct --> DeadFlag
+    end
+
+    subgraph "Monitor (Hilo)"
+        Monitor_Func --> DeadM
+        Monitor_Func --> MealM
+        Monitor_Func --> DeadFlag
+        Monitor_Func --> Printer
+    end
+```
+
 ### Diagrama de Flujo (Parte Obligatoria)
 
 ```mermaid
@@ -130,4 +170,79 @@ flowchart TD
         Sleep --> Think
     end
     CreatePhilos -.-> Think
+```
+
+## Arquitectura (Parte Bonus)
+
+La parte bonus difiere significativamente en su arquitectura al utilizar procesos independientes y semáforos para la comunicación y sincronización.
+
+### Estructura de Archivos (Bonus)
+
+*   `bonus_src/`:
+    *   `philo_bonus.c`: Main. Inicialización de semáforos y procesos.
+    *   `sim_bonus.c`: Lógica de simulación y bucle principal del proceso hijo.
+    *   `sim2_bonus.c`: Funciones de toma de tenedores y chequeo de muerte (Semáforos).
+    *   `utils_bonus.c`, `parsing_bonus.c`, `free_bonus.c`: Utilidades.
+
+### Gestión de Recursos (Parte Bonus)
+
+En la versión bonus, los recursos se gestionan mediante semáforos con nombre (POSIX semaphores) y la memoria no se comparte directamente entre los procesos (cada uno tiene su copia de `t_philo`).
+
+```mermaid
+graph TD
+    subgraph "Kernel / OS (Recursos Compartidos)"
+        SemForks[Semáforo /forks (Contador)]
+        SemPrinter[Semáforo /printer (Binario)]
+        SemSeats[Semáforo /seats (Contador)]
+        SemDie[Semáforo /die (Flag)]
+    end
+
+    subgraph "Proceso Padre (Main)"
+        InitSems(Inicializar Semáforos)
+        ForkPhilos(Crear Procesos Hijos)
+        WaitChildren(Esperar Hijos)
+    end
+
+    subgraph "Proceso Filósofo 1"
+        P1_Data[t_philo (Copia)]
+        P1_Data -.-> SemForks
+        P1_Data -.-> SemPrinter
+        P1_Data -.-> SemSeats
+        P1_Data -.-> SemDie
+    end
+
+    subgraph "Proceso Filósofo 2"
+        P2_Data[t_philo (Copia)]
+        P2_Data -.-> SemForks
+        P2_Data -.-> SemPrinter
+        P2_Data -.-> SemSeats
+        P2_Data -.-> SemDie
+    end
+
+    InitSems --> ForkPhilos
+```
+
+### Diagrama de Flujo (Parte Bonus)
+
+```mermaid
+flowchart TD
+    Start --> InitSems(Inicializar Semáforos)
+    InitSems --> CreateProcs(Crear Procesos Hijos)
+    CreateProcs -- Padre --> Wait(Esperar terminación)
+    Wait --> FreeSems(Liberar Semáforos) --> End
+    
+    CreateProcs -- Hijo --> PhiloLoop
+    
+    subgraph "Rutina del Filósofo (Proceso)"
+        PhiloLoop --> CheckDead{¿/die válido?}
+        CheckDead -- No --> ExitLoop(Terminar)
+        CheckDead -- Sí --> WaitSeat(Esperar turno/asiento)
+        WaitSeat --> TakeForks(Tomar 2 tenedores - SemWait)
+        TakeForks --> Eat(Comer)
+        Eat --> ReleaseForks(Soltar tenedores - SemPost)
+        ReleaseForks --> ReleaseSeat(Liberar asiento)
+        ReleaseSeat --> Sleep(Dormir)
+        Sleep --> Think(Pensar)
+        Think --> PhiloLoop
+    end
 ```
