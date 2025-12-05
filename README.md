@@ -118,15 +118,15 @@ El siguiente diagrama ilustra cómo se comparten los recursos (mutex y variables
 ```mermaid
 graph TD
     subgraph "Recursos Compartidos (Heap)"
-        Forks[Mutex Tenedores (Array)]
-        Printer[Mutex Impresión]
-        DeadM[Mutex Muerte]
-        MealM[Mutex Última Comida]
-        DeadFlag[Flag Muerte (int*)]
+        Forks["Mutex Tenedores (Array)"]
+        Printer["Mutex Impresión"]
+        DeadM["Mutex Muerte"]
+        MealM["Mutex Última Comida"]
+        DeadFlag["Flag Muerte (int*)"]
     end
 
     subgraph "Filósofo 1 (Hilo)"
-        P1_Struct[t_philo]
+        P1_Struct["t_philo"]
         P1_Struct --> Forks
         P1_Struct --> Printer
         P1_Struct --> DeadM
@@ -135,7 +135,7 @@ graph TD
     end
 
     subgraph "Filósofo 2 (Hilo)"
-        P2_Struct[t_philo]
+        P2_Struct["t_philo"]
         P2_Struct --> Forks
         P2_Struct --> Printer
         P2_Struct --> DeadM
@@ -155,18 +155,18 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Start --> ParseInput{¿Argumentos válidos?}
-    ParseInput -- Sí --> InitData(Inicializar datos y mutex)
-    ParseInput -- No --> ShowError(Mostrar error) --> End
-    InitData --> CreatePhilos(Crear hilos para los filósofos)
-    CreatePhilos --> Monitor(Monitorizar filósofos)
-    Monitor -- Filósofo muere o todos comen --> EndSim(Fin de la simulación)
-    EndSim --> FreeResources(Liberar memoria y mutex) --> End
+    Start --> ParseInput{"¿Argumentos válidos?"}
+    ParseInput -- Sí --> InitData("Inicializar datos y mutex")
+    ParseInput -- No --> ShowError("Mostrar error") --> End
+    InitData --> CreatePhilos("Crear hilos para los filósofos")
+    CreatePhilos --> Monitor("Monitorizar filósofos")
+    Monitor -- Filósofo muere o todos comen --> EndSim("Fin de la simulación")
+    EndSim --> FreeResources("Liberar memoria y mutex") --> End
     subgraph "Rutina del Filósofo (Hilo)"
-        Think(Pensar) --> TakeForks(Tomar tenedores)
-        TakeForks --> Eat(Comer)
-        Eat --> ReleaseForks(Soltar tenedores)
-        ReleaseForks --> Sleep(Dormir)
+        Think("Pensar") --> TakeForks("Tomar tenedores")
+        TakeForks --> Eat("Comer")
+        Eat --> ReleaseForks("Soltar tenedores")
+        ReleaseForks --> Sleep("Dormir")
         Sleep --> Think
     end
     CreatePhilos -.-> Think
@@ -191,20 +191,20 @@ En la versión bonus, los recursos se gestionan mediante semáforos con nombre (
 ```mermaid
 graph TD
     subgraph "Kernel / OS (Recursos Compartidos)"
-        SemForks[Semáforo /forks (Contador)]
-        SemPrinter[Semáforo /printer (Binario)]
-        SemSeats[Semáforo /seats (Contador)]
-        SemDie[Semáforo /die (Flag)]
+        SemForks["Semáforo /forks (Contador)"]
+        SemPrinter["Semáforo /printer (Binario)"]
+        SemSeats["Semáforo /seats (Contador)"]
+        SemDie["Semáforo /die (Flag)"]
     end
 
     subgraph "Proceso Padre (Main)"
-        InitSems(Inicializar Semáforos)
-        ForkPhilos(Crear Procesos Hijos)
-        WaitChildren(Esperar Hijos)
+        InitSems("Inicializar Semáforos")
+        ForkPhilos("Crear Procesos Hijos")
+        WaitChildren("Esperar Hijos")
     end
 
     subgraph "Proceso Filósofo 1"
-        P1_Data[t_philo (Copia)]
+        P1_Data["t_philo (Copia)"]
         P1_Data -.-> SemForks
         P1_Data -.-> SemPrinter
         P1_Data -.-> SemSeats
@@ -212,7 +212,7 @@ graph TD
     end
 
     subgraph "Proceso Filósofo 2"
-        P2_Data[t_philo (Copia)]
+        P2_Data["t_philo (Copia)"]
         P2_Data -.-> SemForks
         P2_Data -.-> SemPrinter
         P2_Data -.-> SemSeats
@@ -226,23 +226,23 @@ graph TD
 
 ```mermaid
 flowchart TD
-    Start --> InitSems(Inicializar Semáforos)
-    InitSems --> CreateProcs(Crear Procesos Hijos)
-    CreateProcs -- Padre --> Wait(Esperar terminación)
-    Wait --> FreeSems(Liberar Semáforos) --> End
+    Start --> InitSems("Inicializar Semáforos")
+    InitSems --> CreateProcs("Crear Procesos Hijos")
+    CreateProcs -- Padre --> Wait("Esperar terminación")
+    Wait --> FreeSems("Liberar Semáforos") --> End
     
     CreateProcs -- Hijo --> PhiloLoop
     
     subgraph "Rutina del Filósofo (Proceso)"
-        PhiloLoop --> CheckDead{¿/die válido?}
-        CheckDead -- No --> ExitLoop(Terminar)
-        CheckDead -- Sí --> WaitSeat(Esperar turno/asiento)
-        WaitSeat --> TakeForks(Tomar 2 tenedores - SemWait)
-        TakeForks --> Eat(Comer)
-        Eat --> ReleaseForks(Soltar tenedores - SemPost)
-        ReleaseForks --> ReleaseSeat(Liberar asiento)
-        ReleaseSeat --> Sleep(Dormir)
-        Sleep --> Think(Pensar)
+        PhiloLoop --> CheckDead{"¿/die válido?"}
+        CheckDead -- No --> ExitLoop("Terminar")
+        CheckDead -- Sí --> WaitSeat("Esperar turno/asiento")
+        WaitSeat --> TakeForks("Tomar 2 tenedores - SemWait")
+        TakeForks --> Eat("Comer")
+        Eat --> ReleaseForks("Soltar tenedores - SemPost")
+        ReleaseForks --> ReleaseSeat("Liberar asiento")
+        ReleaseSeat --> Sleep("Dormir")
+        Sleep --> Think("Pensar")
         Think --> PhiloLoop
     end
 ```
