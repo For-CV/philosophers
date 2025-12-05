@@ -36,13 +36,19 @@ void	ft_print_action(const t_philo *philo, const int action)
  en caso contrario */
  int	ft_check_dead(const t_philo *philo, const long current_t)
  {
-	pthread_mutex_lock(philo->dead_m);
 	if (current_t < 0)
-		return (pthread_mutex_unlock(philo->dead_m), ft_set_death(philo), 1);
+		return (ft_set_death(philo), 1);
+	pthread_mutex_lock(philo->dead_m);
+	if (*(philo->dead))
+	{
+		pthread_mutex_unlock(philo->dead_m);
+		return (1);
+	}
 	pthread_mutex_lock(philo->last_meal_mtx);
 	if (philo->t_to_die < (current_t - philo->last_meal_ms))
 	{
 		pthread_mutex_unlock(philo->last_meal_mtx);
+		pthread_mutex_unlock(philo->dead_m);
 		return (1);
 	}
 	pthread_mutex_unlock(philo->last_meal_mtx);

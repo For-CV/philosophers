@@ -41,11 +41,7 @@ void	*ft_check_finished(void *arg)
 	{
 		finished = ft_check_once(philos);
 		if (finished == philos[0]->n_philos)
-		{
-			ft_putlng_fd(ft_get_time() - philos[0]->start_ms, 2);
-			write(2, " finished!\n", 10);
 			break ;
-		}
 		pthread_mutex_lock(philos[0]->dead_m);
 		if (*(philos[0]->dead) && *(philos[0]->dead) != -2)
 		{

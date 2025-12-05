@@ -37,21 +37,29 @@ long	ft_get_time(void)
 int	ft_usleep(const long ms, const t_philo *philo)
 {
 	long	start;
+	// long	last_m_t;
+	int		dead;
 
 	start = ft_get_time();
 	while (1)
 	{
 		pthread_mutex_lock(philo->dead_m);
-		if (*(philo->dead) && *(philo->dead) != -2)
+		dead = *(philo->dead);
+		pthread_mutex_unlock(philo->dead_m);
+		if (dead && dead != -2)
+			return (1);
+		// pthread_mutex_lock(philo->last_meal_mtx);
+		// last_m_t = philo->last_meal_ms;
+		// pthread_mutex_unlock(philo->last_meal_mtx);
+		// if (ft_get_time() - last_m_t >= philo->t_to_die)
+		// 	return (2);
+		if (ft_get_time() - start >= ms)
+			return (0);
+		if (usleep(50))
 		{
-			pthread_mutex_unlock(philo->dead_m);
+			write(2, "Error: usleep\n", 14);
 			return (1);
 		}
-		        pthread_mutex_unlock(philo->dead_m);
-		        if (ft_get_time() - philo->last_meal_ms >= philo->t_to_die)
-		            return (2);
-		        if (ft_get_time() - start >= ms)			return (0);
-		usleep(50);
 	}
 	return (0);
 }
