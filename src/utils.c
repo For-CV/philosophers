@@ -28,7 +28,6 @@ void	*ft_monitoring(void *arg)
 
 	philos = (t_philo **)arg;
 	i = 0;
-	dead = 0;
 	while (1)
 	{
 		if (i >= philos[0]->n_philos)

@@ -11,7 +11,7 @@ void	ft_set_death(const t_philo *philo)
 
 /* Comprueba 1 vez cada filósofo si ha muerto algún filósofo o si todos han comido n_veces.
 @return 1 cuando se cumple alguna de las dos condiciones. */
-int	ft_check_once(t_philo **philos)
+static int	ft_check_once(t_philo **philos)
 {
 	int	i;
 	int	finished;
@@ -37,7 +37,6 @@ void	*ft_check_finished(void *arg)
 	t_philo **philos;
 
 	philos = (t_philo **)arg;
-	finished = 0;
 	while (1)
 	{
 		finished = ft_check_once(philos);

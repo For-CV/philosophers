@@ -62,7 +62,7 @@ int	ft_parse(t_table *table, char **argv)
 	table->n_to_eat = 0;
 	table->n_philos = ft_special_atoi(argv[1]);
 	if (table->n_philos <= 0 || table->n_philos > MAX_PHILOS)
-		return (write(2, "number_philo must be a positive int < 100000\n", 45), 0);
+		return (write(2, "number_philo must be a positive int < MAX_PHILOS\n", 49), 0);
 	t = ft_special_atoi(argv[2]);
 	if (t <= 0)
 		return (write(2, "time_to_die must be a positive int\n", 35), 0);

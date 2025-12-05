@@ -1,26 +1,26 @@
 #include "philo_bonus.h"
 
 /* Imprime un número a stdout */
-void    ft_putnbr(int n)
-{
-        int     nbr;
+// void    ft_putnbr(int n)
+// {
+//         int     nbr;
 
-        if (n == -2147483648)
-        {
-                write(1, "-2147483648", 11);
-                return ;
-        }
-        if (n < 0)
-        {
-                write (1, "-", 1);
-                n = -n;
-        }
-        nbr = n;
-        if (nbr > 9)
-                ft_putnbr(n / 10);
-        nbr = (n % 10) + 48;
-        write (1, &nbr, 1);
-}
+//         if (n == -2147483648)
+//         {
+//                 write(1, "-2147483648", 11);
+//                 return ;
+//         }
+//         if (n < 0)
+//         {
+//                 write (1, "-", 1);
+//                 n = -n;
+//         }
+//         nbr = n;
+//         if (nbr > 9)
+//                 ft_putnbr(n / 10);
+//         nbr = (n % 10) + 48;
+//         write (1, &nbr, 1);
+// }
 
 // Pequeño retardo inicial para escalonar a los filósofos según su orden
 // de creación. @return 1 en caso de éxito, 0 si hay error.

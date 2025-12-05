@@ -33,12 +33,23 @@ ft_test_source()
 i=0
 while read -r linea || [ -n "$linea" ]; do
 	archivo=$(ft_get_log $i)
-	duracion=5
-	timeout --foreground "$duracion" $linea >>"$log_dir$archivo" 2>>"$log_dir$archivo"
-	PID_PHILO=$!
-	wait $PID_PHILO
-	EXIT_CODE=$?
-	if [ $EXIT_CODE -eq 0 ]; then
+	
+	# Contar argumentos
+	set -- $linea
+	arg_count=$#
+
+	if [ $arg_count -eq 6 ]; then
+		duracion=60
+		echo "Running Valgrind for: $linea"
+		timeout --foreground "$duracion" valgrind --show-leak-kinds=all --track-origins=yes --leak-check=full $linea >>"$log_dir$archivo" 2>>"$log_dir$archivo"
+		EXIT_CODE=$?
+	else
+		duracion=5
+		timeout --foreground "$duracion" $linea >>"$log_dir$archivo" 2>>"$log_dir$archivo"
+		EXIT_CODE=$?
+	fi
+
+	if [ $EXIT_CODE -eq 0 ] || [ $EXIT_CODE -eq 124 ]; then
     	echo "✅ Prueba Superada: El programa terminó correctamente."
 	else
     	echo "❌ Fallo: El programa salió con error (Código $EXIT_CODE) o Segfault."

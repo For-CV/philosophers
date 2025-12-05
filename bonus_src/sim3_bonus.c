@@ -50,7 +50,7 @@ int	ft_eat(t_philo *philo)
 	}
 	else
 		printf("%ld ms %d is eating\n", t - philo->start_ms, philo->philo_id);
-	dead = ft_sems_post(philo);
+	dead += ft_sems_post(philo);
 	if (dead)
 		return (1);
 	dead = ft_usleep(philo->table->t_to_eat, philo);
