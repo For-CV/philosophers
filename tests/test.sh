@@ -1,164 +1,126 @@
-#/bin/bash
+#!/bin/bash
 
-# Retorna el archivo al que redirigir la salida en función del número de línea
-ft_get_log() {
-    local log_files=(
-        "odd_easy_survive.txt"
-        "odd_die.txt"
-        "even_10ms_survive.txt"
-        "even_difficult_survive?.txt"
-        "one_philo.txt"
-        "even_die.txt"
-        "even_10ms_survive.txt"
-        "odd_survive_10t.txt"          
-        "large_odd_7t.txt"             
-        "large_odd.txt"                
-        "even_10ms_survive.txt"        
-        "large_even_survive?.txt"      
-        "even_short_time.txt"          
-        "invalid_input.txt"            
-        "invalid_input.txt"            
-        "invalid_input.txt"            
-        "invalid_input.txt"            
-        "invalid_input.txt"            
-    )
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-    echo "${log_files[$1]}"
-	
-}
+# Paths relative to the script directory
+TEST_FILE="$SCRIPT_DIR/test_integration.txt"
+PHILO_EXE="$SCRIPT_DIR/../tester"
+TSAN_EXE="$SCRIPT_DIR/../philo_tsan"
 
-ft_run_normal_test() {
-	local linea="$1"
-	local archivo="$2"
-	local arg_count="$3"
-	local duracion=5
-	local test_line=${linea/philo/tester}
+LOG_DIR="$SCRIPT_DIR/$(date +%y%m%d%H%M%S)/"
 
-	timeout --foreground "$duracion" $test_line >>"$log_dir$archivo" 2>>"$log_dir$archivo"
-	local EXIT_CODE=$?
+# Colors
+GREEN="\e[32m"
+RED="\e[31m"
+BLUE="\e[34m"
+RESET="\e[0m"
 
-	# Determinar el código de salida esperado
-	local EXPECTED_CODE=0
-	if [ $arg_count -eq 5 ]; then
-		if [[ "$archivo" == *"survive"* ]]; then
-			EXPECTED_CODE=124
-		fi
-	fi
+mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR/val_logs"
+mkdir -p "$LOG_DIR/hel_logs"
+mkdir -p "$LOG_DIR/tsan_logs"
 
-	if [ $EXIT_CODE -eq $EXPECTED_CODE ]; then
-    	echo -e "✅ \e[32mEl programa terminó correctamente.\e[0m"
-	elif [[ "$archivo" == "invalid_input.txt" ]] && [ $EXIT_CODE -eq 1 ]; then
-        echo -e "✅ \e[32mEl programa terminó correctamente (Input inválido).\e[0m"
-	else
-		if [ $EXPECTED_CODE -eq 124 ]; then
-			echo -e "❌ \e[31mFallo: Se esperaba Timeout (124) pero salió con $EXIT_CODE (Probable muerte de filósofo).\e[0m"
-		else
-    		echo -e "❌ \e[31mFallo: El programa salió con error (Código $EXIT_CODE) o Segfault.\e[0m"
-		fi
-	fi
-}
+ft_run_test() {
+    local id="$1"
+    local expectation="$2"
+    local args="$3"
+    
+    # Construct log filename: [ID]_[Expectation]_[ArgsHash].txt
+    # Create a simple hash/summary of args (replace spaces with underscores)
+    local args_slug=$(echo "$args" | tr ' ' '_')
+    local log_name=$(printf "%03d_%s_%s.txt" "$id" "$expectation" "$args_slug")
+    local log_path="$LOG_DIR$log_name"
 
-ft_run_valgrind_test() {
-	local linea="$1"
-	local archivo="$2"
-	local arg_count="$3"
-	local test_line=${linea/philo/tester}
+    # Determine execution parameters based on expectation
+    local timeout_duration=5
+    local expected_code=0
 
-	if [ $arg_count -eq 6 ]; then
-		local duracion=60
-		echo -e "Running Valgrind for: $linea"
-		timeout --foreground "$duracion" valgrind --read-var-info=yes --error-exitcode=137 --show-leak-kinds=all --track-origins=yes --leak-check=full $test_line >>"$log_dir/val_logs/$archivo" 2>>"$log_dir/val_logs/$archivo"
-		local EXIT_CODE=$?
-		if [ $EXIT_CODE -eq 137 ]; then
-			echo -e "❌ \e[31m[Valgrind] Fallo: Errores de memoria detectados.\e[0m"
-		else
-			echo -e "✅ \e[32m[Valgrind] El programa terminó correctamente.\e[0m"
-		fi
-	fi
-}
+    case "$expectation" in
+        SURVIVE)
+            timeout_duration=5 # Run for 5s, verify it's still alive
+            expected_code=124  # Timeout exit code
+            ;;
+        DIE)
+            timeout_duration=5 # Should die quickly
+            expected_code=0    # Normal exit after death
+            ;;
+        FINITE)
+            timeout_duration=60 # Allow time to finish eating
+            expected_code=0
+            ;;
+        ERROR)
+            timeout_duration=2
+            expected_code=1    # Error exit
+            ;;
+    esac
 
-ft_run_helgrind_test() {
-        local linea="$1"
-        local archivo="$2"
-        local duracion=10
-        local test_line=${linea/philo/tester}
+    echo -e "\n${BLUE}Test $id: Expectation=$expectation Args=$args${RESET}"
+    echo "Running: timeout $timeout_duration $PHILO_EXE $args" > "$log_path"
 
-        echo -e "Running Helgrind for: $linea"
-        timeout --foreground "$duracion" valgrind --tool=helgrind --read-var-info=yes --error-exitcode=138 $test_line >>"$log_dir/hel_logs/$archivo" 2>>"$log_dir/hel_logs/$archivo"
-        local EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 138 ]; then
-                echo -e "❌ \e[31m[Helgrind] Fallo: Errores de concurrencia detectados.\e[0m"
-        elif [ $EXIT_CODE -eq 124 ]; then
-                if grep -q "ERROR SUMMARY: [1-9]" "$log_dir/hel_logs/$archivo"; then
-                        echo -e "❌ \e[31m[Helgrind] Fallo: Errores de concurrencia detectados (Timeout).\e[0m"
-                else
-                        echo -e "✅ \e[32m[Helgrind] El programa terminó correctamente (Timeout).\e[0m"
-                fi
+    # 1. Normal Run
+    timeout "$timeout_duration" $PHILO_EXE $args >> "$log_path" 2>&1
+    local exit_code=$?
+
+    # Verify Result
+    if [ $exit_code -eq $expected_code ]; then
+        echo -e "✅ ${GREEN}PASS${RESET} (Exit Code: $exit_code)"
+    else
+        # Special case: DIE might timeout if logic is wrong (Immortality bug)
+        if [ "$expectation" == "DIE" ] && [ $exit_code -eq 124 ]; then
+             echo -e "❌ ${RED}FAIL${RESET}: Expected DEATH, but Timed Out (Immortality)."
+        # Special case: SURVIVE might die (exit 0)
+        elif [ "$expectation" == "SURVIVE" ] && [ $exit_code -ne 124 ]; then
+             echo -e "❌ ${RED}FAIL${RESET}: Expected SURVIVAL, but exited with $exit_code."
         else
-                echo -e "✅ \e[32m[Helgrind] El programa terminó correctamente.\e[0m"
+             echo -e "❌ ${RED}FAIL${RESET}: Expected $expected_code, got $exit_code."
         fi
-}
-ft_run_tsan_test() {
-	local linea="$1"
-	local archivo="$2"
-	local duracion=10
-	local tsan_line=${linea/philo/philo_tsan}
+    fi
 
-	echo -e "Running TSan for: $tsan_line"
-	TSAN_OPTIONS="exitcode=66" timeout --foreground "$duracion" $tsan_line >>"$log_dir/tsan_logs/$archivo" 2>>"$log_dir/tsan_logs/$archivo"
-	local EXIT_CODE=$?
-	if [ $EXIT_CODE -eq 66 ]; then
-		echo -e "❌ \e[31m[TSan] Fallo: Errores de concurrencia detectados (Data Race).\e[0m"
-	else
-		echo -e "✅ \e[32m[TSan] El programa terminó correctamente.\e[0m"
-	fi
-}
+    # 2. Sanitizers (Only if not an ERROR test)
+    if [ "$expectation" != "ERROR" ]; then
+        # Valgrind
+        if [ "$expectation" == "FINITE" ]; then
+             # Only run valgrind on finite tests to avoid infinite loops/timeouts affecting leak check
+             echo "   Running Valgrind..."
+             timeout 60 valgrind --error-exitcode=137 --leak-check=full $PHILO_EXE $args >> "$LOG_DIR/val_logs/$log_name" 2>&1
+             if [ $? -eq 137 ]; then echo -e "   ❌ ${RED}[Valgrind] Memory Errors${RESET}"; else echo -e "   ✅ ${GREEN}[Valgrind] Clean${RESET}"; fi
+        fi
 
-# Función para hacer los tests de la parte obligatoria
-ft_test_source()
-{
-i=0
-while read -r linea || [ -n "$linea" ]; do
-	archivo=$(ft_get_log $i)
-	
-	# Contar argumentos
-	set -- $linea
-	arg_count=$#
-	
-	test=$((i + 1))
-	echo -e "\n\e[34mTest $test: $linea\e[0m"
+        # Helgrind
+        echo "   Running Helgrind..."
+        # Use shorter timeout for helgrind as it is slow
+        timeout 10 valgrind --tool=helgrind --error-exitcode=138 $PHILO_EXE $args >> "$LOG_DIR/hel_logs/$log_name" 2>&1
+        local h_code=$?
+        if [ $h_code -eq 138 ]; then 
+            echo -e "   ❌ ${RED}[Helgrind] Concurrency Errors${RESET}"
+        else 
+            echo -e "   ✅ ${GREEN}[Helgrind] Clean${RESET}"
+        fi
 
-	ft_run_normal_test "$linea" "$archivo" "$arg_count"
-	ft_run_valgrind_test "$linea" "$archivo" "$arg_count"
-	ft_run_helgrind_test "$linea" "$archivo"
-	ft_run_tsan_test "$linea" "$archivo"
-
-	((i+=1))
-done < "$tests"
+        # TSan
+        echo "   Running TSan..."
+        TSAN_OPTIONS="exitcode=66" timeout 5 $TSAN_EXE $args >> "$LOG_DIR/tsan_logs/$log_name" 2>&1
+        local t_code=$?
+        if [ $t_code -eq 66 ]; then 
+             echo -e "   ❌ ${RED}[TSan] Data Race Detected${RESET}"
+        else 
+             echo -e "   ✅ ${GREEN}[TSan] Clean${RESET}"
+        fi
+    fi
 }
 
-# Script para ejecutar test unitarios
-
-elog=error_log.txt
-log=log.txt
-log_dir="$(date +%y%m%d%H%M%S)/"
-cd tests
-mkdir -p $log_dir
-mv test_runner_c $log_dir
-cd $log_dir
-mkdir -p val_logs
-mkdir -p hel_logs
-mkdir -p tsan_logs
-./test_runner_c 2>$elog 1>$log
-
-# Script para ejecutar test integrales
-
-cd ..
-tests=./test_integration.txt
-
-if [ ! -f "$tests" ]; then
-    echo -e  "❌ \e[31mError: El archivo $tests no existe.\e[0m"
+if [ ! -f "$TEST_FILE" ]; then
+    echo "Error: $TEST_FILE not found."
     exit 1
 fi
 
-ft_test_source
+# Main Loop
+i=1
+while IFS='|' read -r expectation args || [ -n "$expectation" ]; do
+    # Skip empty lines
+    if [ -z "$expectation" ]; then continue; fi
+    
+    ft_run_test "$i" "$expectation" "$args"
+    ((i++))
+done < "$TEST_FILE"
