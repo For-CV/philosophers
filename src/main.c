@@ -2,17 +2,20 @@
 
 int	main(int argc, char **argv)
 {
-	t_table table;
+	t_table 		table;
 	struct s_mtxs	mtxs;
-	t_philo **philos;
-	int		dead;
+	t_philo 		**philos;
+	int				dead;
 
 	if (argc < 5 || argc > 6)
 		return (write(2, ERR_MSG, 128), 1);
 	if (!ft_parse(&table, argv))
 		return (1);
 	if (table.n_philos == 1)
+	{
+		usleep(table.t_to_die * 1000);
 		return (write(1, "0 ms 1 died\n", 12), 0);
+	}
 	if (ft_init_mtxs(&mtxs, table.n_philos))
 		return (1);
 	dead = 0;

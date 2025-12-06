@@ -4,11 +4,28 @@
  en caso de error (imprimiendo el mensaje de error)*/
 static pthread_mutex_t	*ft_make_mtx(void)
 {
+	int				ret;
 	pthread_mutex_t *mtx;
+
 	mtx = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
 	if (!mtx)
 		return (NULL);
 	pthread_mutex_init(mtx, NULL);
+	ret = pthread_mutex_lock(mtx);
+	if (ret)
+	{
+		if (ret == EINVAL)
+			write(2, "Error: pthread_mutex_init\n", 26);
+		else
+			write(2, "Error: pthread_mutex_lock\n", 26);
+		return (NULL);
+	}
+	if (ft_mutex_unlock(mtx))
+	{
+		ft_mutex_destroy(mtx);
+		free(mtx);
+		return (NULL);
+	}
 	return (mtx);
 }
 
@@ -59,7 +76,6 @@ int	ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *de
 		philos[i]->forks = mtxs->forks;
 		ft_assign_forks(philos[i], i + 1);
 		i++;
-		// printf("n_philos = %d\nphilo_id = %d\nt_to_die = %ld\nt_to_eat = %ld\nt_to_sleep = %ld\nn_to_eat = %ld\nforks = %p\nprinter = %p\ndead_mtx = %p\nlast_meal_mtx = %p\nfork1 = %d\nfork2 = %d\n\n", philos[i - 1]->n_philos, philos[i - 1]->philo_id, philos[i - 1]->t_to_die, philos[i - 1]->t_to_eat, philos[i - 1]->t_to_sleep, philos[i - 1]->n_to_eat, philos[i - 1]->forks, philos[i - 1]->printer, philos[i - 1]->dead_mtx, philos[i - 1]->last_meal_mtx, philos[i - 1]->fork1, philos[i - 1]->fork2);
 	}
 	return (1);
 }
@@ -93,7 +109,7 @@ t_philo  **ft_create_philos(const t_table *table, t_mtxs *mtxs)
 
 
 // Crea e inicia los mutexes.
-// @return 0 en caso de éxito o 1 en caso de error.
+// @return 0 en caso de éxito ó 1 en caso de error.
 int	ft_init_mtxs(t_mtxs *mtxs, const int n_philos)
 {
 	int	i;
@@ -103,11 +119,11 @@ int	ft_init_mtxs(t_mtxs *mtxs, const int n_philos)
 	mtxs->last_meal_mtx = ft_make_mtx();
 	mtxs->finished_mtx = ft_make_mtx();
 	mtxs->forks = (pthread_mutex_t **)ft_calloc(n_philos, sizeof(pthread_mutex_t *));
+	i = 0;
+	while (mtxs->forks && i < n_philos)
+		mtxs->forks[i++] = NULL;
 	if (!mtxs->dead_m || !mtxs->printer || !mtxs->last_meal_mtx || !mtxs->forks || !mtxs->finished_mtx)
 		return (ft_free_mtxs(mtxs, 0), 1);
-	i = 0;
-	while (i < n_philos)
-		mtxs->forks[i++] = NULL;
 	i = 0;
 	while (i < n_philos)
 	{

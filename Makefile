@@ -16,7 +16,9 @@ SRC = src/main.c\
 	src/sim.c\
 	src/sim2.c\
 	src/sim3.c\
-	src/create.c
+	src/create.c\
+	src/wrappers.c\
+	src/monitoring.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -50,7 +52,9 @@ TEST_C_FILES = tests/test_units.c\
 	src/sim.c\
 	src/sim2.c\
 	src/sim3.c\
-	src/create.c
+	src/create.c\
+	src/wrappers.c\
+	src/monitoring.c
 
 TEST_SH_FILES = tests/test.sh
 TEST_RUNNER_C = test_runner_c
@@ -87,9 +91,7 @@ bonus_msg:
 
 $(BONUS_NAME): $(BONUS_OBJ)
 	$(CC) $(CFLAGS) $(BONUS_OBJ) -o $(BONUS_NAME)
-	@echo
-	@echo -e "✅ \e[36mTerminado!\e[0m"
-	@echo
+	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -103,13 +105,13 @@ $(BONUS_NAME): $(BONUS_OBJ)
 check:
 	@echo -e "\n🔍 \e[36mComprobando con cppcheck (análisis estático)...\e[0m\n"
 	@cppcheck --inconclusive --enable=all --suppress=missingIncludeSystem --inconclusive --std=c11 --check-level=exhaustive $(SRC) $(BONUS_SRC)
-	@echo -e "\n✅ \e[36mTerminado!\n"
+	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
 
 tests: $(TSAN_NAME) $(DEBUG_NAME) $(TEST_RUNNER_C)
 	mv $(TEST_RUNNER_C) tests
 	@echo -e "\n🔍 \e[36m--- Running tests ---\e[0m\n"
 	bash $(TEST_SH_FILES)
-	@echo -e "\n\e[36mTests Terminados!\e[0m\n"
+	@echo -e "\n\e[36mTests Terminados!\e[0m \n"
 
 $(TEST_RUNNER_C): $(TEST_C_FILES)
 	@echo -e "\n🚧 \e[36mCompilando tests con fsanitize=address,undefined...\e[0m\n"
@@ -128,12 +130,12 @@ fclean: clean
 re: fclean all
 
 docker-run:
-	@echo "\n\e[36m🐳 Entrando al contenedor...\e[0m\n"
+	@echo -e "\n\e[36m🐳 Entrando al contenedor...\e[0m\n"
 	docker run --rm -it \
 		--cap-add=SYS_PTRACE \
 		--security-opt seccomp=unconfined \
-		-v $$(pwd):/app \
-		-w /app \
-		entorno-c-pro
+		-v $$(pwd):/philosophers \
+		-w /philosophers \
+		entorno-c
 
 .PHONY: all bonus check tests clean fclean clean_bonus re docker-run philo_tsan

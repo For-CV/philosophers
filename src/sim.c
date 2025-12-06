@@ -40,22 +40,22 @@ static inline int	ft_sleep(const t_philo *philo)
 // o algun otro filósofo ó 0 en caso de éxito.
 static inline int	ft_eat(t_philo *philo)
 {
-	// long	current_t;
 	int		dead;
+	int		ret;
 
-	// current_t = ft_get_time();
 	dead = ft_check_dead(philo, ft_get_time());
 	if (!dead)
 	{
 		ft_print_action(philo, EAT);
-		pthread_mutex_lock(philo->last_meal_mtx);
+		if (ft_mutex_lock(philo->last_meal_mtx))
+			return (1);
 		philo->last_meal_ms = ft_get_time();
-		pthread_mutex_unlock(philo->last_meal_mtx);
+		ft_mutex_unlock(philo->last_meal_mtx);
 		dead = ft_usleep(philo->t_to_eat, philo);
 	}
-	pthread_mutex_unlock(philo->forks[philo->fork2]);
-	pthread_mutex_unlock(philo->forks[philo->fork1]);
-	return (dead);
+	ret = ft_mutex_unlock(philo->forks[philo->fork2]);
+	ret += ft_mutex_unlock(philo->forks[philo->fork1]);
+	return (dead + ret);
 }
 
 // Ejecuta la acción de coger tenedores.  @return Devuelve 1 si ha muerto éste
@@ -65,7 +65,8 @@ int	ft_takefork(const t_philo *philo, const int fork)
 	long	current_t;
 	int		dead;
 
-	pthread_mutex_lock(philo->forks[fork]);
+	if (ft_mutex_lock(philo->forks[fork]))
+		return (1);
 	current_t = ft_get_time();
 	dead = ft_check_dead(philo, current_t);	
 	if (!dead)
@@ -96,9 +97,9 @@ void *ft_philo(void *arg)
 			break ;
 		if (philo->n_to_eat && (i == philo->n_to_eat))
 		{
-			pthread_mutex_lock(philo->finished_mtx);
+			ft_mutex_lock(philo->finished_mtx);
 			philo->finished = 1;
-			pthread_mutex_unlock(philo->finished_mtx);
+			ft_mutex_unlock(philo->finished_mtx);
 			break ;
 		}
 	}
@@ -123,7 +124,7 @@ int	ft_start_sim(t_philo **philos)
 	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
 	ft_collect_philos(philos[0]->threads, philos);
-	pthread_join(monitoring, NULL);
-	pthread_join(finished, NULL);
+	ft_pthread_join(monitoring);
+	ft_pthread_join(finished);
 	return (0);
 }

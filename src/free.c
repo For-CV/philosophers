@@ -10,7 +10,7 @@ void	ft_collect_philos(pthread_t *threads, t_philo **philos)
 	n_philos = (*philos)->n_philos;
 	while (dead < n_philos)
 	{
-		pthread_join(threads[dead], NULL);
+		ft_pthread_join(threads[dead]);
 		dead++;
 	}
 }
@@ -20,28 +20,28 @@ void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
 {
 	int	i;
 
-	if (!mtxs || n_philos == 0)
+	if (!mtxs)
 		return ;
 	i = 0;
 	while (i < n_philos)
 	{
 		if (mtxs->forks[i])
-			pthread_mutex_destroy(mtxs->forks[i]);
+			ft_mutex_destroy(mtxs->forks[i]);
 		free(mtxs->forks[i]);
 		i++;
 	}
 	free(mtxs->forks);
 	if (mtxs->dead_m)
-			pthread_mutex_destroy(mtxs->dead_m);
+			ft_mutex_destroy(mtxs->dead_m);
 	free(mtxs->dead_m);
 	if (mtxs->last_meal_mtx)
-			pthread_mutex_destroy(mtxs->last_meal_mtx);
+			ft_mutex_destroy(mtxs->last_meal_mtx);
 	free(mtxs->last_meal_mtx);
 	if (mtxs->printer)
-			pthread_mutex_destroy(mtxs->printer);
+			ft_mutex_destroy(mtxs->printer);
 	free(mtxs->printer);
 	if (mtxs->finished_mtx)
-			pthread_mutex_destroy(mtxs->finished_mtx);
+			ft_mutex_destroy(mtxs->finished_mtx);
 	free(mtxs->finished_mtx);
 }
 

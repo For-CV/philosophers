@@ -13,23 +13,19 @@ int	ft_set_time(t_philo **philos)
 	while (i < n_philos)
 	{
 		philos[i]->start_ms = ft_get_time();
-		if (philos[i]->start_ms == -1)
-			return (1);
 		philos[i]->last_meal_ms = philos[i]->start_ms;
 		i++;
 	}
 	return (0);
 }
 
-/* Gets the current time since Epoch in miliseconds. If gettimeofday fails,
- writes the error message and returns -1 */
+/* Gets the current time since Epoch in miliseconds. */
 long	ft_get_time(void)
 {
 	struct timeval	tv;
 	long			time;
 
-	if (gettimeofday(&tv, NULL))
-		return (write(2, "Error: gettimeofday\n", 19), -1);
+	gettimeofday(&tv, NULL);
 	time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	return (time);
 }
@@ -37,22 +33,17 @@ long	ft_get_time(void)
 int	ft_usleep(const long ms, const t_philo *philo)
 {
 	long	start;
-	// long	last_m_t;
 	int		dead;
+	int		error;
 
 	start = ft_get_time();
 	while (1)
 	{
-		pthread_mutex_lock(philo->dead_m);
+		error = ft_mutex_lock(philo->dead_m);
 		dead = *(philo->dead);
-		pthread_mutex_unlock(philo->dead_m);
-		if (dead && dead != -2)
+		error += ft_mutex_unlock(philo->dead_m);
+		if (error || (dead && dead != -2))
 			return (1);
-		// pthread_mutex_lock(philo->last_meal_mtx);
-		// last_m_t = philo->last_meal_ms;
-		// pthread_mutex_unlock(philo->last_meal_mtx);
-		// if (ft_get_time() - last_m_t >= philo->t_to_die)
-		// 	return (2);
 		if (ft_get_time() - start >= ms)
 			return (0);
 		if (usleep(50))

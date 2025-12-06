@@ -9,6 +9,7 @@
 # include <string.h>
 # include <stdint.h>
 # include <limits.h>
+# include <errno.h>
 
 # define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die,\
  time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
@@ -88,10 +89,17 @@ void			ft_free_mtxs(t_mtxs *mtxs, const int n_philos);
 void			ft_free_philos(t_philo **philo);
 void			ft_collect_philos(pthread_t *threads, t_philo **philos);
 
+/* Function wrappers */
+
+int	ft_mutex_lock(pthread_mutex_t *mutex);
+int	ft_mutex_unlock(pthread_mutex_t *mutex);
+int	ft_mutex_destroy(pthread_mutex_t *mutex);
+int	ft_pthread_join(pthread_t thread);
+
 /* Simulation */
 
 int				ft_start_sim(t_philo **philos);
-void			ft_set_death(const t_philo *philo);
+// void			ft_set_death(const t_philo *philo);
 void			*ft_monitoring(void *arg);
 void			ft_print_action(const t_philo *philo, const int action);
 int				ft_check_dead(const t_philo *philo, const long current_t);

@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim
 
-LABEL maintainer="CodeMentor"
-LABEL description="Entorno de desarrollo C para 42 con Valgrind y Sanitizers"
+LABEL maintainer="RMS35"
+LABEL description="Entorno de desarrollo C para 42 philosophers con Valgrind y Sanitizers"
 
 # Instalación de herramientas
 RUN apt-get update && apt-get install -y \
@@ -14,5 +14,5 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /philosophers
 CMD ["/bin/bash"]
