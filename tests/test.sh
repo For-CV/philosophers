@@ -21,6 +21,21 @@ mkdir -p "$LOG_DIR/val_logs"
 mkdir -p "$LOG_DIR/hel_logs"
 mkdir -p "$LOG_DIR/tsan_logs"
 
+# 0. Run Unit Tests
+UNIT_TEST_EXE="$SCRIPT_DIR/test_runner_c"
+if [ -f "$UNIT_TEST_EXE" ]; then
+    echo -e "${BLUE}--- Running Unit Tests ---${RESET}"
+    # Run in the script dir so it finds tests_atoi.txt etc.
+    (cd "$SCRIPT_DIR" && ./test_runner_c &> "$LOG_DIR/unit_test_console.log")
+    if [ $? -ne 0 ]; then
+        echo -e "❌ ${RED}Unit Tests FAILED. See $LOG_DIR/unit_test_console.log for details.${RESET}"
+        exit 1
+    fi
+    echo -e "✅ ${GREEN}Unit Tests Passed.${RESET}"
+else
+    echo -e "${RED}Warning: Unit test executable not found at $UNIT_TEST_EXE. Skipping unit tests.${RESET}\n"
+fi
+
 ft_run_test() {
     local id="$1"
     local expectation="$2"

@@ -24,25 +24,53 @@ void    ft_putnbr_fd(int n, int fd)
 
 int	ft_test_atoi(const int n, const char *s, const int fd)
 {
-	int	t;
+	char	*line;
+	char	*pipe_pos;
+	char	*expected_str;
+	char	*input_str;
+	int		expected;
+	int		result;
 
 	if (!s)
-		return (1);
-	write(fd, "Atoi Test ", 10);
+		return (0);
+	
+	// Make a copy to modify
+	line = strdup(s);
+	if (!line) return (1);
+
+	pipe_pos = strchr(line, '|');
+	if (!pipe_pos)
+	{
+		free(line);
+		return (0); // Skip malformed lines
+	}
+
+	*pipe_pos = '\0';
+	expected_str = line;
+	input_str = pipe_pos + 1;
+
+	expected = atoi(expected_str);
+	result = ft_special_atoi(input_str);
+
+	write(fd, "Test ", 5);
 	ft_putnbr_fd(n, fd);
-	write(fd, ": ", 2);
-	write(fd, s, strlen(s));
-	write(fd, ": \n", 3);
-	t = atoi(s);
-	write(fd, "Expected: ", 10);
-	if (t >= 0 && atol(s) <= INT_MAX && atol(s) >= INT_MIN)
-		ft_putnbr_fd(t, fd);
+	write(fd, " Input='", 9);
+	write(fd, input_str, ft_strlen(input_str));
+	write(fd, " Expected=", 11);
+	ft_putnbr_fd(expected, fd);
+	write(fd, " Got=", 5);
+	ft_putnbr_fd(result, fd);
+
+	if (result == expected)
+	{
+		write(fd, " -> PASS\n", 9);
+		free(line);
+		return (0);
+	}
 	else
-		write(fd, "-1", 2);
-	write(fd, "\n", 1);
-	t = ft_special_atoi(s);
-	write(fd, "Result: ", 8);
-	ft_putnbr_fd(t, fd);
-	write(fd, "\n\n", 2);
-	return (0);
+	{
+		write(fd, " -> FAIL\n", 9);
+		free(line);
+		return (1);
+	}
 }
