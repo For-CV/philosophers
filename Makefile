@@ -59,6 +59,21 @@ TEST_C_FILES = tests/test_units.c\
 TEST_SH_FILES = tests/test.sh
 TEST_RUNNER_C = test_runner_c
 
+# Bonus Tests
+TEST_BONUS_C_FILES = tests/test_units_bonus.c\
+	tests/test_atoi_bonus.c\
+	tests/test_parse_bonus.c\
+	bonus_src/utils_bonus.c\
+	bonus_src/parsing_bonus.c\
+	bonus_src/time_bonus.c\
+	bonus_src/free_bonus.c\
+	bonus_src/sim_bonus.c\
+	bonus_src/sim2_bonus.c\
+	bonus_src/sim3_bonus.c\
+	bonus_src/wrappers_bonus.c
+
+TEST_BONUS_SH_FILES = tests/test_integration_bonus.sh
+TEST_RUNNER_BONUS_C = tests/test_runner_bonus_c
 
 # Reglas
 all: ob_mssg $(NAME)
@@ -113,9 +128,19 @@ tests: $(TSAN_NAME) $(DEBUG_NAME) $(TEST_RUNNER_C)
 	bash $(TEST_SH_FILES)
 	@echo -e "\n\e[36mTests Terminados!\e[0m \n"
 
+tests_bonus: bonus $(TEST_RUNNER_BONUS_C)
+	@echo -e "\n🔍 \e[36m--- Running Bonus tests ---\e[0m\n"
+	bash $(TEST_BONUS_SH_FILES)
+	@echo -e "\n\e[36mBonus Tests Terminados!\e[0m \n"
+
 $(TEST_RUNNER_C): $(TEST_C_FILES)
 	@echo -e "\n🚧 \e[36mCompilando tests con fsanitize=address,undefined...\e[0m\n"
 	$(CC) $(CFLAGS) -g -fsanitize=address,undefined -O0 $(TEST_C_FILES) -o $(TEST_RUNNER_C)
+	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
+
+$(TEST_RUNNER_BONUS_C): $(TEST_BONUS_C_FILES)
+	@echo -e "\n🚧 \e[36mCompilando tests bonus con fsanitize=address,undefined...\e[0m\n"
+	$(CC) $(CFLAGS) -g -fsanitize=address,undefined -O0 $(TEST_BONUS_C_FILES) -o $(TEST_RUNNER_BONUS_C)
 	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
 
 clean:
