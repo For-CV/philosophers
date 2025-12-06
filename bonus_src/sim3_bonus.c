@@ -7,19 +7,21 @@ int	ft_wait_philos(const int n_philos)
 {
 	int	i;
 	int	status;
+	int	ret;
 
 	i = 1;
 	status = 0;
+	ret = 0;
 	while (i <= n_philos)
 	{
 		if (waitpid(-1, &status, 0) == -1)
 		{
-			status++;
+			ret++;
 			write(2, "Error: waitpid\n", 15);
 		}
 		i++;
 	}
-	return (status);
+	return (ret);
 }
 
 /* @brief Simulation of eating time_to_eat miliseconds */
