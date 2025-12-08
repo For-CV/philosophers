@@ -1,0 +1,80 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/07 15:44:19 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/07 16:40:51 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+// Recoge los filósofos una vez han terminado.
+void	ft_collect_philos(pthread_t *threads, t_philo **philos)
+{
+	int		dead;
+	int		n_philos;
+
+	dead = 0;
+	n_philos = (*philos)->n_philos;
+	while (dead < n_philos)
+	{
+		ft_pthread_join(threads[dead]);
+		dead++;
+	}
+}
+
+// Libera y destruye los mutexes, libera y destruye n_philos forks.
+void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
+{
+	int	i;
+
+	if (!mtxs)
+		return ;
+	i = 0;
+	while (i < n_philos)
+	{
+		if (mtxs->forks[i])
+			ft_mutex_destroy(mtxs->forks[i]);
+		free(mtxs->forks[i]);
+		i++;
+	}
+	free(mtxs->forks);
+	if (mtxs->dead_m)
+		ft_mutex_destroy(mtxs->dead_m);
+	free(mtxs->dead_m);
+	if (mtxs->last_meal_mtx)
+		ft_mutex_destroy(mtxs->last_meal_mtx);
+	free(mtxs->last_meal_mtx);
+	if (mtxs->printer)
+		ft_mutex_destroy(mtxs->printer);
+	free(mtxs->printer);
+	if (mtxs->finished_mtx)
+		ft_mutex_destroy(mtxs->finished_mtx);
+	free(mtxs->finished_mtx);
+}
+
+// Libera las estructuras de cada filósofo y el array, incluidos
+// los mutexes. El flag initiated es para saber si los mutexes
+// printer y dead_m están iniciados con pthread_mute_init.
+void	ft_free_philos(t_philo **philo)
+{
+	int		n_philos;
+	int		i;
+
+	if (!philo || !(*philo))
+		return ;
+	n_philos = philo[0]->n_philos;
+	i = 0;
+	if (philo[0]->threads)
+		free(philo[0]->threads);
+	while (i < n_philos)
+	{
+		free(philo[i]);
+		i++;
+	}
+	free(philo);
+}
