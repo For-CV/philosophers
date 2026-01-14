@@ -4,7 +4,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Paths relative to the script directory
-TEST_FILE="$SCRIPT_DIR/test_integration.txt"
+TEST_FILE="$SCRIPT_DIR/test_integration_bonus.txt"
 PHILO_EXE="$SCRIPT_DIR/../philo_bonus"
 
 LOG_DIR="$SCRIPT_DIR/$(date +%y%m%d%H%M%S)_bonus/"

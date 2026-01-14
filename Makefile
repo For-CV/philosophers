@@ -154,13 +154,6 @@ fclean: clean
 
 re: fclean all
 
-docker-run:
-	@echo -e "\n\e[36m🐳 Entrando al contenedor...\e[0m\n"
-	docker run --rm -it \
-		--cap-add=SYS_PTRACE \
-		--security-opt seccomp=unconfined \
-		-v $$(pwd):/philosophers \
-		-w /philosophers \
-		entorno-c
 
-.PHONY: all bonus check tests clean fclean clean_bonus re docker-run philo_tsan
+
+.PHONY: all bonus check tests clean fclean clean_bonus re philo_tsan

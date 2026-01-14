@@ -34,6 +34,28 @@ static int	ft_set_time(t_philo **philos)
 	return (1);
 }
 
+static void	*ft_monitor(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	while (1)
+	{
+		pthread_mutex_lock(&philo->meal_mtx);
+		if (ft_get_time() - philo->last_meal_ms > philo->table->t_to_die)
+		{
+			sem_wait(philo->printer);
+			printf("%ld ms %d died\n", ft_get_time() - philo->start_ms, philo->philo_id);
+			sem_unlink("/die");
+			exit(1);
+		}
+		pthread_mutex_unlock(&philo->meal_mtx);
+		if (usleep(1000))
+			break ;
+	}
+	return (NULL);
+}
+
 /* Imprime la muerte del filósofo, libera recursos y mata el proceso */
 void	ft_kill_philo(t_philo **philos, int n_philo, sem_t *die)
 {
@@ -88,6 +110,9 @@ static int	ft_philo(t_philo **philos, int n_philo, sem_t *die)
 	i = 0;
 	philo = philos[n_philo];
 	philo->philo_id = n_philo + 1;
+	if (pthread_create(&philo->monitor, NULL, ft_monitor, philo))
+		exit(1);
+	pthread_detach(philo->monitor);
 	if (ft_wait_turn(philos[0]))
 		i = -1;
 	while (i >= 0)
@@ -100,12 +125,13 @@ static int	ft_philo(t_philo **philos, int n_philo, sem_t *die)
 			break ;
 		i++;
 		if (philo->table->n_to_eat > 0 && i >= philo->table->n_to_eat)
-			ft_kill_philo(philos, n_philo, die);
+			break ;
 		if (ft_sleep(philo, philos))
 			break ;
 		if (ft_think(philo))
 			break ;
 	}
+	pthread_mutex_destroy(&philo->meal_mtx);
 	ft_free_child(philos);
 	sem_close(die);
 	if (sem_unlink("/die") < 0 && errno != ENOENT)
@@ -123,11 +149,15 @@ int	ft_start_sim(t_philo **philos)
 	int		i;
 	int		n_philos;
 	pid_t	pid;
+	pid_t	*pids;
 
 	if (!ft_set_time(philos))
 		return (1);
 	i = 0;
 	n_philos = philos[i]->table->n_philos;
+	pids = (pid_t *)ft_calloc(n_philos, sizeof(pid_t));
+	if (!pids)
+		return (write(2, "Error: malloc\n", 14), 1);
 	while (i < n_philos)
 	{
 		pid = fork();
@@ -138,8 +168,10 @@ int	ft_start_sim(t_philo **philos)
 		}
 		if (pid == 0)
 			ft_philo(philos, i, (*philos)->die);
+		pids[i] = pid;
 		i++;
 	}
-	ft_wait_philos(i);
+	ft_wait_philos(i, pids);
+	free(pids);
 	return (0);
 }

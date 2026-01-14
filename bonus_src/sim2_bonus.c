@@ -52,8 +52,16 @@ static int	ft_sems_wait(const t_philo *philo)
 		return (ft_sem_post(philo->seats) + 1);
 	if (ft_sem_wait(philo->forks) < 0)
 		return (ft_sem_post(philo->seats) + 1);
+	if (ft_sem_wait(philo->printer))
+		return (1);
+	printf("%ld ms %d has taken a fork\n", ft_get_time() - philo->start_ms, philo->philo_id);
+	ft_sem_post(philo->printer);
 	if (ft_sem_wait(philo->forks) < 0)
 		return (ft_sem_post(philo->forks) + ft_sem_post(philo->seats) + 1);
+	if (ft_sem_wait(philo->printer))
+		return (1);
+	printf("%ld ms %d has taken a fork\n", ft_get_time() - philo->start_ms, philo->philo_id);
+	ft_sem_post(philo->printer);
 	if (sem_wait(philo->printer) < 0)
 	{
 		ft_sem_post(philo->forks);
@@ -81,7 +89,7 @@ int	ft_sems_post(const t_philo *philo)
 /* Simulation of taking two forks (with sem_wait) */
 /* @return 0 if everything went ok, 1 if any semaphore operation failed
 or checked that a philosopher died */
-int	ft_takeforks(const t_philo *philo)
+int	ft_takeforks(t_philo *philo)
 {
 	int		philo_id;
 	long	start_t;
@@ -94,13 +102,15 @@ int	ft_takeforks(const t_philo *philo)
 	if (ft_sems_wait(philo))
 		return (1);
 	dead = ft_check_dead(philo);
+	pthread_mutex_lock(&philo->meal_mtx);
 	if (!dead && (start_t - philo->last_meal_ms <= philo->table->t_to_die))
 	{
-		printf("%ld ms %d has taken fork\n", start_t - philo->start_ms, philo_id);
+		pthread_mutex_unlock(&philo->meal_mtx);
 		dead = ft_sem_post(philo->printer);
 	}
 	else
 	{
+		pthread_mutex_unlock(&philo->meal_mtx);
 		if (dead == 1)
 			printf("%ld ms %d died\n", start_t - philo->start_ms, philo_id);
 		ft_sem_post(philo->printer);

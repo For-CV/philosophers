@@ -3,25 +3,29 @@
 /* @brief Waits with waitpid for each philosopher. Probably will need a kill option
 for inevitables deadlocks (with sem_t *printer) */
 /* @return = on success, 1 if waitpid failed. */
-int	ft_wait_philos(const int n_philos)
+int	ft_wait_philos(const int n_philos, pid_t *pids)
 {
 	int	i;
 	int	status;
-	int	ret;
+	int	j;
 
-	i = 1;
-	status = 0;c
-	ret = 0;
-	while (i <= n_philos)
+	i = 0;
+	while (i < n_philos)
 	{
-		if (waitpid(-1, &status, 0) == -1)
+		if (waitpid(-1, &status, 0) != -1)
 		{
-			ret++;
-			write(2, "Error: waitpid\n", 15);
+			if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+			{
+				j = 0;
+				while (j < n_philos)
+					kill(pids[j++], SIGKILL);
+			}
 		}
+		else
+			write(2, "Error: waitpid\n", 15);
 		i++;
 	}
-	return (ret);
+	return (0);
 }
 
 /* @brief Simulation of eating time_to_eat miliseconds */
@@ -55,6 +59,9 @@ int	ft_eat(t_philo *philo)
 	dead += ft_sems_post(philo);
 	if (dead)
 		return (1);
+	pthread_mutex_lock(&philo->meal_mtx);
+	philo->last_meal_ms = t;
+	pthread_mutex_unlock(&philo->meal_mtx);
 	dead = ft_usleep(philo->table->t_to_eat, philo);
-	return (philo->last_meal_ms = t, dead);
+	return (dead);
 }

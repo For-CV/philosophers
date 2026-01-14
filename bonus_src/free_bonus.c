@@ -72,11 +72,15 @@ static void	ft_close_sems(t_philo **philos)
 	if (philos[0]->printer != SEM_FAILED)
 		ft_sem_close(philos[0]->printer);
 	if (philos[0]->seats != SEM_FAILED)
-		ft_sem_close(philos[0]->printer);
+		ft_sem_close(philos[0]->seats);
 	if (philos[0]->printer)
 		ft_sem_unlink("/printer");
 	if (philos[0]->seats)
 		ft_sem_unlink("/seats");
+	if (philos[0]->die != SEM_FAILED)
+		ft_sem_close(philos[0]->die);
+	if (philos[0]->die)
+		ft_sem_unlink("/die");
 	ft_close_forks((*philos)->forks, 0);
 
 }

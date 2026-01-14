@@ -18,6 +18,8 @@
 # include <unistd.h>
 # include <sys/time.h>
 # include <sys/wait.h>
+# include <signal.h>
+# include <pthread.h>
 # include <string.h>
 # include <stdint.h>
 # include <limits.h>
@@ -59,6 +61,8 @@ typedef	struct s_philo
 	sem_t	*printer;
 	sem_t	*die;
 	sem_t	*seats;
+	pthread_t		monitor;
+	pthread_mutex_t	meal_mtx;
 }	t_philo;
 
 /* Utils and parsing */
@@ -92,9 +96,9 @@ long	ft_get_time(void);
 /* Simulation */
 
 int		ft_start_sim(t_philo **philos);
-int		ft_wait_philos(const int n_philos);
+int		ft_wait_philos(const int n_philos, pid_t *pids);
 int		ft_wait_turn(const t_philo *philo);
-int		ft_takeforks(const t_philo *philo);
+int		ft_takeforks(t_philo *philo);
 int		ft_check_dead(const t_philo *philo);
 int		ft_sems_post(const t_philo *philo);
 int		ft_sleep(const t_philo *philo, t_philo **philos);

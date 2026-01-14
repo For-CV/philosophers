@@ -75,6 +75,13 @@ void	*ft_philo(void *arg)
 
 	i = 0;
 	philo = (t_philo *)arg;
+	if (philo->n_philos == 1)
+	{
+		ft_takefork(philo, philo->fork1);
+		ft_usleep(philo->t_to_die, philo);
+		ft_mutex_unlock(philo->forks[philo->fork1]);
+		return (nullptr);
+	}
 	if (philo->philo_id % 2 == 0)
 		usleep(1000);
 	while (!philo->n_to_eat || i <= (philo->n_to_eat + 1))

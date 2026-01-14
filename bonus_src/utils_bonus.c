@@ -46,7 +46,7 @@ int	ft_wait_turn(const t_philo *philo)
 	if ((philo->philo_id % 2) == 0)
 		delay = philo->table->t_to_eat / 2;
 	if ((philo->philo_id % 2) != 0)
-		delay = philo->table->t_to_sleep / 2;
+		delay = 0;
 	if (delay <= 0)
 		return (0);
 	return (ft_usleep(delay, philo));

@@ -34,6 +34,13 @@ static void	ft_monitor_dead(t_philo *philos, int i)
 {
 	long	current_t;
 
+	ft_mutex_lock(philos[0].finished_mtx);
+	if (philos[i].finished)
+	{
+		ft_mutex_unlock(philos[0].finished_mtx);
+		return ;
+	}
+	ft_mutex_unlock(philos[0].finished_mtx);
 	ft_mutex_lock(philos[0].last_meal_mtx);
 	current_t = ft_get_time();
 	if (current_t - philos[i].last_meal_ms > philos[i].t_to_die)

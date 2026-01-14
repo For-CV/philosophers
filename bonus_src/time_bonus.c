@@ -17,7 +17,7 @@
 long	ft_get_time(void)
 {
 	struct timeval	tv;
-	unsigned int	time;
+	long			time;
 
 	if (gettimeofday(&tv, NULL))
 	{
@@ -38,18 +38,17 @@ int	ft_usleep(const long ms, const t_philo *philo)
 	long	remaining_u;
 	long	error;
 
+	(void)philo;
 	start = ft_get_time();
 	while (1)
 	{
-		if (ft_check_dead(philo))
-			return (-1);
 		elapsed = ft_get_time();
 		if (elapsed < 0)
 			return (-1);
 		elapsed -= start;
 		if (elapsed >= ms)
 			break ;
-		remaining_u = (ms - elapsed) / 1000;
+		remaining_u = (ms - elapsed) * 1000;
 		if (remaining_u > 100)
 			error = usleep(100);
 		else

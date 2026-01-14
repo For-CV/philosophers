@@ -1,4 +1,5 @@
-// #include "philo_bonus.h"
+#include "philo_bonus.h"
+
 
 int	ft_isspace(const int	c)
 {
