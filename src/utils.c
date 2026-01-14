@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 22:35:27 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void    *ft_calloc(const size_t nmemb, const size_t size)
+void	*ft_calloc(const size_t nmemb, const size_t size)
 {
 	void	*result;
-	size_t  bytes;
+	size_t	bytes;
 	size_t	i;
 
 	if (nmemb == 0 || size == 0)
@@ -38,7 +50,7 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-void    ft_putlng_fd(long n, int fd)
+void	ft_putlng_fd(long n, int fd)
 {
 	long	nbr;
 

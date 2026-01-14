@@ -1,4 +1,4 @@
-#include "philo_bonus.h"
+// #include "philo_bonus.h"
 
 
 /* @brief Opens the named semaphores for die, printer and seats, then

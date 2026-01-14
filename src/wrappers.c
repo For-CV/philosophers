@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   wrappers.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/06 21:21:36 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 21:43:55 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 // pthread_mutex_lock wrapper, returns its errors plus 1 if !mutex.
@@ -40,11 +52,11 @@ int	ft_mutex_destroy(pthread_mutex_t *mutex)
 }
 
 // pthread_join wrapper, returns its errors.
-int	ft_pthread_join(pthread_t thread)
+int	ft_pthread_join(const pthread_t thread)
 {
 	int	ret;
 
-	ret = pthread_join(thread, NULL);
+	ret = pthread_join(thread, nullptr);
 	if (ret)
 		write(2, "Error: pthread_join\n", 20);
 	return (ret);

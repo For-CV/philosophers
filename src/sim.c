@@ -1,23 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sim.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 22:03:58 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
-
-// Ejecuta la acción de pensar (en caso de un número impar de filósofos,
-// introduce un pequeño delay).  @return Devuelve 1 si ha muerto éste
-// o algun otro filósofo ó 0 en caso de éxito.
-static inline int	ft_think(const t_philo *philo)
-{
-	long	current_t;
-	int		dead;
-
-	current_t = ft_get_time();
-	dead = ft_check_dead(philo, current_t);
-	if (!dead)
-	{
-		ft_print_action(philo, THINK);
-		if (philo->n_philos % 2 != 0)
-			dead = ft_usleep(philo->t_to_eat * 0.9, philo);
-	}
-	return (dead);
-}
 
 // Ejecuta la acción de dormir.  @return Devuelve 1 si ha muerto éste
 // o algun otro filósofo ó 0 en caso de éxito.
@@ -58,26 +51,26 @@ static inline int	ft_eat(t_philo *philo)
 	return (dead + ret);
 }
 
-// Ejecuta la acción de coger tenedores.  @return Devuelve 1 si ha muerto éste
-// o algun otro filósofo ó 0 en caso de éxito.
-int	ft_takefork(const t_philo *philo, const int fork)
+static bool	philo_actions(t_philo *philo, int i)
 {
-	long	current_t;
-	int		dead;
-
-	if (ft_mutex_lock(philo->forks[fork]))
-		return (1);
-	current_t = ft_get_time();
-	dead = ft_check_dead(philo, current_t);	
-	if (!dead)
-		ft_print_action(philo, FORK);
-	return (dead);
+	if (ft_sleep(philo))
+		return (true);
+	if (ft_think(philo))
+		return (true);
+	if (philo->n_to_eat && (i == philo->n_to_eat))
+	{
+		ft_mutex_lock(philo->finished_mtx);
+		philo->finished = 1;
+		ft_mutex_unlock(philo->finished_mtx);
+		return (true);
+	}
+	return (false);
 }
 
 // Ya en cada hilo, el filósofo ejecuta las acciones pertinentes
-void *ft_philo(void *arg)
+void	*ft_philo(void *arg)
 {
-	t_philo *philo;
+	t_philo	*philo;
 	int		i;
 
 	i = 0;
@@ -89,41 +82,32 @@ void *ft_philo(void *arg)
 		if (ft_take_both_forks(philo))
 			break ;
 		if (ft_eat(philo))
-			break;
+			break ;
 		i++;
-		if (ft_sleep(philo))
+		if (philo_actions(philo, i))
 			break ;
-		if (ft_think(philo))
-			break ;
-		if (philo->n_to_eat && (i == philo->n_to_eat))
-		{
-			ft_mutex_lock(philo->finished_mtx);
-			philo->finished = 1;
-			ft_mutex_unlock(philo->finished_mtx);
-			break ;
-		}
 	}
-	return (NULL);
+	return (nullptr);
 }
 
 //Inicia un hilo por philósofo pasándole la estructura tphilo correspondiente.
-int	ft_start_sim(t_philo **philos)
+int	ft_start_sim(t_philo *philos)
 {
 	pthread_t	monitoring;
 	pthread_t	finished;
 
 	if (ft_set_time(philos))
 		return (1);
-	philos[0]->threads = (pthread_t *)ft_calloc((*philos)->n_philos, sizeof(pthread_t));
-	if (!philos[0]->threads)
+	philos->threads = (pthread_t *)ft_calloc(philos->n_philos, sizeof(pthread_t));
+	if (!philos->threads)
 		return (1);
-	if (pthread_create(&(finished), NULL, ft_check_finished, (void *)philos))
+	if (pthread_create(&(finished), nullptr, ft_check_finished, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
 	if (ft_create_threads(philos))
 		return (1);
-	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
+	if (pthread_create(&(monitoring), nullptr, ft_monitoring, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
-	ft_collect_philos(philos[0]->threads, philos);
+	ft_collect_philos(philos->threads, philos);
 	ft_pthread_join(monitoring);
 	ft_pthread_join(finished);
 	return (0);

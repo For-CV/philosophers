@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sim2.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 22:36:26 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 /* Imprime la acción pertinente, el id del filósofo que la realiza */
-void	ft_print_action(const t_philo *philo, const int action)
+int	ft_print_action(const t_philo *philo, const int action)
 {
 	int		is_dead;
 	long	current_t;
@@ -12,11 +24,10 @@ void	ft_print_action(const t_philo *philo, const int action)
 	if (is_dead)
 	{
 		ft_mutex_unlock(philo->printer);
-		ft_mutex_unlock(philo->dead_m);
-		return ;
+		return (ft_mutex_unlock(philo->dead_m), 1);
 	}
 	current_t = ft_get_time();
-	ft_putlng_fd(current_t -philo->start_ms, 1);
+	ft_putlng_fd(current_t - philo->start_ms, 1);
 	write(1, " ms ", 4);
 	ft_putlng_fd((long)philo->philo_id, 1);
 	if (action == FORK)
@@ -28,14 +39,14 @@ void	ft_print_action(const t_philo *philo, const int action)
 	else if (action == SLEEP)
 		write(1, " is sleeping\n", 13);
 	ft_mutex_unlock(philo->printer);
-	ft_mutex_unlock(philo->dead_m);
+	return (ft_mutex_unlock(philo->dead_m), 0);
 }
 
 /* Comprueba antes de imprimir una acción que no se ha superadp t_to_die
  o que no haya muerto algún filósofo. @return 1 Si hay alguna muerte, 0
  en caso contrario */
- int	ft_check_dead(const t_philo *philo, const long current_t)
- {
+int	ft_check_dead(const t_philo *philo, const long current_t)
+{
 	int	dead;
 
 	if (current_t < 0)
@@ -56,43 +67,41 @@ void	ft_print_action(const t_philo *philo, const int action)
 	if (philo->t_to_die < (current_t - philo->last_meal_ms) || dead)
 	{
 		ft_mutex_unlock(philo->last_meal_mtx);
-		ft_mutex_unlock(philo->dead_m);
-		return (1);
+		return (ft_mutex_unlock(philo->dead_m), 1);
 	}
 	dead = ft_mutex_unlock(philo->last_meal_mtx);
 	dead += ft_mutex_unlock(philo->dead_m);
 	return (dead);
- }
+}
 
- /* Crea los hilos de cada filósofo @return 0 en caso de éxito,
-  1 si falla pthread_create*/
-  int	ft_create_threads(t_philo **philos)
-  {
+/* Crea los hilos de cada filósofo @return 0 en caso de éxito,
+1 si falla pthread_create*/
+int	ft_create_threads(t_philo *philos)
+{
 	int	i;
 
 	i = 0;
-	while (i < (*philos)->n_philos)
+	while (i < philos->n_philos)
 	{
-		if (pthread_create(&(philos[0]->threads[i]), NULL, ft_philo, (void *)philos[i]))
+		if (pthread_create(&(philos->threads[i]), nullptr, ft_philo, (void *)&philos[i]))
 		{
-			philos[0]->n_philos = i;
-			ft_mutex_lock(philos[0]->dead_m);
-			*(philos[0]->dead) = 1;
-			ft_mutex_unlock(philos[0]->dead_m);
-			ft_collect_philos(philos[0]->threads, philos);
-			philos[0]->n_philos = philos[1]->n_philos;
+			philos->n_philos = i;
+			ft_mutex_lock(philos->dead_m);
+			*(philos->dead) = 1;
+			ft_mutex_unlock(philos->dead_m);
+			ft_collect_philos(philos->threads, philos);
 			write(2, "Error: pthread_create\n", 22);
 			return (1);
 		}
 		i++;
 	}
 	return (0);
-  }
+}
 
-  /* Coger ambos tenedores. @return 1 si se comprueba alguna muerte, 0 en
-  caso de éxito */
-  int	ft_take_both_forks(const t_philo *philo)
-  {
+/* Coger ambos tenedores. @return 1 si se comprueba alguna muerte, 0 en
+caso de éxito */
+int	ft_take_both_forks(const t_philo *philo)
+{
 	if (ft_takefork(philo, philo->fork1))
 	{
 		ft_mutex_unlock(philo->forks[philo->fork1]);
@@ -102,7 +111,7 @@ void	ft_print_action(const t_philo *philo, const int action)
 	{
 		ft_mutex_unlock(philo->forks[philo->fork1]);
 		ft_mutex_unlock(philo->forks[philo->fork2]);
-		return (1);;
+		return (1);
 	}
 	return (0);
-  }
+}

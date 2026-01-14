@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   create.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 23:20:37 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 /* Crea e inicializa un mutex @return La dirección del mutex o NULL
@@ -5,12 +17,12 @@
 static pthread_mutex_t	*ft_make_mtx(void)
 {
 	int				ret;
-	pthread_mutex_t *mtx;
+	pthread_mutex_t	*mtx;
 
 	mtx = (pthread_mutex_t *)ft_calloc(1, sizeof(pthread_mutex_t));
 	if (!mtx)
-		return (NULL);
-	pthread_mutex_init(mtx, NULL);
+		return (nullptr);
+	pthread_mutex_init(mtx, nullptr);
 	ret = pthread_mutex_lock(mtx);
 	if (ret)
 	{
@@ -18,13 +30,13 @@ static pthread_mutex_t	*ft_make_mtx(void)
 			write(2, "Error: pthread_mutex_init\n", 26);
 		else
 			write(2, "Error: pthread_mutex_lock\n", 26);
-		return (NULL);
+		return (nullptr);
 	}
 	if (ft_mutex_unlock(mtx))
 	{
 		ft_mutex_destroy(mtx);
 		free(mtx);
-		return (NULL);
+		return (nullptr);
 	}
 	return (mtx);
 }
@@ -32,7 +44,7 @@ static pthread_mutex_t	*ft_make_mtx(void)
 // Asigna fork1/fork2 en orden asimétrico para que los pares cojan primero
 // el tenedor derecho y luego el izquierdo, y los impares lo hagan al revés.
 // Esto mejora el convoy cuando n_philos es impar.
-static void ft_assign_forks(t_philo *philo, int id)
+static void	ft_assign_forks(t_philo *philo, int id)
 {
 	int	left;
 	int	right;
@@ -56,25 +68,25 @@ static void ft_assign_forks(t_philo *philo, int id)
 con el arrary de mutexes de tenedores, el que protege last_meal_ms y 
 con el mutex para comprobar la muerte de los filósofos.
 @return 1 en caso de éxito, 0 en caso de error. Libera t_table siempre. */
-int	ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *dead)
+int	ft_init_philos(t_philo *philos, const t_table *table, t_mtxs *mtxs, int *dead)
 {
 	int	i;
 
 	i = 0;
 	while (i < table->n_philos)
 	{
-		philos[i]->n_philos = table->n_philos;
-		philos[i]->t_to_die = table->t_to_die;
-		philos[i]->t_to_eat = table->t_to_eat;
-		philos[i]->t_to_sleep = table->t_to_sleep;
-		philos[i]->n_to_eat = table->n_to_eat;
-		philos[i]->printer = mtxs->printer;
-		philos[i]->dead_m = mtxs->dead_m;
-		philos[i]->last_meal_mtx = mtxs->last_meal_mtx;
-		philos[i]->finished_mtx = mtxs->finished_mtx;
-		philos[i]->dead = dead;
-		philos[i]->forks = mtxs->forks;
-		ft_assign_forks(philos[i], i + 1);
+		philos[i].n_philos = table->n_philos;
+		philos[i].t_to_die = table->t_to_die;
+		philos[i].t_to_eat = table->t_to_eat;
+		philos[i].t_to_sleep = table->t_to_sleep;
+		philos[i].n_to_eat = table->n_to_eat;
+		philos[i].printer = mtxs->printer;
+		philos[i].dead_m = mtxs->dead_m;
+		philos[i].last_meal_mtx = mtxs->last_meal_mtx;
+		philos[i].finished_mtx = mtxs->finished_mtx;
+		philos[i].dead = dead;
+		philos[i].forks = mtxs->forks;
+		ft_assign_forks(&philos[i], i + 1);
 		i++;
 	}
 	return (1);
@@ -83,30 +95,15 @@ int	ft_init_philos(t_philo **philos, const t_table *table, t_mtxs *mtxs, int *de
 // @brief Crea las estructuras de datos que pasar a cada filósofo. No se
 // imprime mensaje de error.
 // @return El array de philósofos o NULL en caso de error, liberando todo.
-t_philo  **ft_create_philos(const t_table *table, t_mtxs *mtxs)
+t_philo	*ft_create_philos(const t_table *table, t_mtxs *mtxs)
 {
-	t_philo **philos;
-	int		i;
+	t_philo	*philos;
 
-	philos = (t_philo **)ft_calloc(table->n_philos, sizeof(t_philo *));
+	philos = (t_philo *)ft_calloc(table->n_philos, sizeof(t_philo));
 	if (!philos)
-		return (ft_free_mtxs(mtxs, table->n_philos), NULL);
-	i = 0;
-	while (i < table->n_philos)
-	{
-		philos[i] = (t_philo *)ft_calloc(1, sizeof(t_philo));
-		if (!philos[i])
-		{
-			ft_free_mtxs(mtxs, table->n_philos);
-			while (--i >= 0)
-				free(philos[i]);
-			return (free(philos), NULL);
-		}
-		i++;
-	}
+		return (ft_free_mtxs(mtxs, table->n_philos), nullptr);
 	return (philos);
 }
-
 
 // Crea e inicia los mutexes.
 // @return 0 en caso de éxito ó 1 en caso de error.
@@ -121,7 +118,7 @@ int	ft_init_mtxs(t_mtxs *mtxs, const int n_philos)
 	mtxs->forks = (pthread_mutex_t **)ft_calloc(n_philos, sizeof(pthread_mutex_t *));
 	i = 0;
 	while (mtxs->forks && i < n_philos)
-		mtxs->forks[i++] = NULL;
+		mtxs->forks[i++] = nullptr;
 	if (!mtxs->dead_m || !mtxs->printer || !mtxs->last_meal_mtx || !mtxs->forks || !mtxs->finished_mtx)
 		return (ft_free_mtxs(mtxs, 0), 1);
 	i = 0;

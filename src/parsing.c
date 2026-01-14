@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 22:58:03 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-static int	ft_isspace(const int	c)
+static int	ft_isspace(const int c)
 {
 	if (c == 32 || (c >= 9 && c <= 13))
 		return (1);
@@ -31,7 +43,6 @@ int	ft_special_atoi(const char *s)
 	int	r;
 	int	digit;
 
-
 	if (!s || ft_strlen(s) == 0)
 		return (-1);
 	i = ft_skip_space(s);
@@ -50,7 +61,6 @@ int	ft_special_atoi(const char *s)
 		return (-1);
 	return (r);
 }
-
 
 // Rellena t_table con los argumentos de la CLI, imprime mensajes
 // de error si los hubiera

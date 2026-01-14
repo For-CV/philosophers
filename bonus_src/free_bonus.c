@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free_bonus.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 18:29:12 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/05 18:29:12 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
 /* @brief Releases resources when philosopher initialization fails.
@@ -49,7 +61,6 @@ void	ft_free_child(t_philo **philos)
 		i++;
 	}
 	free(philos);
-	return ;
 }
 
 /* @brief Closes and unlinks the shared semaphores held by the parent. */

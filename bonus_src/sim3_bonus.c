@@ -10,7 +10,7 @@ int	ft_wait_philos(const int n_philos)
 	int	ret;
 
 	i = 1;
-	status = 0;
+	status = 0;c
 	ret = 0;
 	while (i <= n_philos)
 	{

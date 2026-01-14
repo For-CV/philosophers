@@ -1,19 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   time.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 22:35:53 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 // Sets the same starting time and last_meal_time for all
 // philosophers.
 // @return 0 if succesful, 1 if gettimeofday fails.
-int	ft_set_time(t_philo **philos)
+int	ft_set_time(t_philo *philos)
 {
 	int	i;
 	int	n_philos;
 
-	n_philos = philos[0]->n_philos;
+	n_philos = philos->n_philos;
 	i = 0;
 	while (i < n_philos)
 	{
-		philos[i]->start_ms = ft_get_time();
-		philos[i]->last_meal_ms = philos[i]->start_ms;
+		philos[i].start_ms = ft_get_time();
+		philos[i].last_meal_ms = philos[i].start_ms;
 		i++;
 	}
 	return (0);
@@ -52,5 +64,4 @@ int	ft_usleep(const long ms, const t_philo *philo)
 			return (1);
 		}
 	}
-	return (0);
 }
