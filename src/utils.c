@@ -50,7 +50,7 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-void	ft_putlng_fd(long n, int fd)
+void	putlng_fd(long n, int fd)
 {
 	long	nbr;
 
@@ -66,7 +66,7 @@ void	ft_putlng_fd(long n, int fd)
 	}
 	nbr = n;
 	if (nbr > 9)
-		ft_putlng_fd(n / 10, fd);
+		putlng_fd(n / 10, fd);
 	nbr = (n % 10) + 48;
 	write (fd, &nbr, 1);
 }

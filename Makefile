@@ -37,7 +37,8 @@ BONUS_SRC = bonus_src/philo_bonus.c\
 	bonus_src/sim3_bonus.c\
 	bonus_src/free_bonus.c\
 	bonus_src/time_bonus.c\
-	bonus_src/wrappers_bonus.c
+	bonus_src/wrappers_bonus.c\
+	bonus_src/sim4_bonus.c
 
 BONUS_OBJ = $(BONUS_SRC:.c=.o)
 
@@ -70,6 +71,7 @@ TEST_BONUS_C_FILES = tests/test_units_bonus.c\
 	bonus_src/sim_bonus.c\
 	bonus_src/sim2_bonus.c\
 	bonus_src/sim3_bonus.c\
+	bonus_src/sim4_bonus.c\
 	bonus_src/wrappers_bonus.c
 
 TEST_BONUS_SH_FILES = tests/test_integration_bonus.sh

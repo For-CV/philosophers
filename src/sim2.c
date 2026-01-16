@@ -13,7 +13,7 @@
 #include "philo.h"
 
 /* Imprime la acción pertinente, el id del filósofo que la realiza */
-int	ft_print_action(const t_philo *philo, const int action)
+int	print_action(const t_philo *philo, const int action)
 {
 	int		is_dead;
 	long	current_t;
@@ -26,10 +26,10 @@ int	ft_print_action(const t_philo *philo, const int action)
 		ft_mutex_unlock(philo->printer);
 		return (ft_mutex_unlock(philo->dead_m), 1);
 	}
-	current_t = ft_get_time();
-	ft_putlng_fd(current_t - philo->start_ms, 1);
+	current_t = get_time();
+	putlng_fd(current_t - philo->start_ms, 1);
 	write(1, " ms ", 4);
-	ft_putlng_fd((long)philo->philo_id, 1);
+	putlng_fd((long)philo->philo_id, 1);
 	if (action == FORK)
 		write(1, " has taken a fork\n", 18);
 	else if (action == EAT)
@@ -45,7 +45,7 @@ int	ft_print_action(const t_philo *philo, const int action)
 /* Comprueba antes de imprimir una acción que no se ha superadp t_to_die
  o que no haya muerto algún filósofo. @return 1 Si hay alguna muerte, 0
  en caso contrario */
-int	ft_check_dead(const t_philo *philo, const long current_t)
+int	check_dead(const t_philo *philo, const long current_t)
 {
 	int	dead;
 
@@ -76,20 +76,21 @@ int	ft_check_dead(const t_philo *philo, const long current_t)
 
 /* Crea los hilos de cada filósofo @return 0 en caso de éxito,
 1 si falla pthread_create*/
-int	ft_create_threads(t_philo *philos)
+int	create_threads(t_philo *philos)
 {
 	int	i;
 
 	i = 0;
-	while (i < philos->n_philos)
+	while (i < philos->n_phil)
 	{
-		if (pthread_create(&(philos->threads[i]), nullptr, ft_philo, (void *)&philos[i]))
+		if (pthread_create(&(philos->threads[i]), NULL, philo_sim,
+				(void *) &philos[i]))
 		{
-			philos->n_philos = i;
+			philos->n_phil = i;
 			ft_mutex_lock(philos->dead_m);
 			*(philos->dead) = 1;
 			ft_mutex_unlock(philos->dead_m);
-			ft_collect_philos(philos->threads, philos);
+			collect_philos(philos->threads, philos);
 			write(2, "Error: pthread_create\n", 22);
 			return (1);
 		}
@@ -100,14 +101,14 @@ int	ft_create_threads(t_philo *philos)
 
 /* Coger ambos tenedores. @return 1 si se comprueba alguna muerte, 0 en
 caso de éxito */
-int	ft_take_both_forks(const t_philo *philo)
+int	take_both_forks(const t_philo *philo)
 {
-	if (ft_takefork(philo, philo->fork1))
+	if (take_forks(philo, philo->fork1))
 	{
 		ft_mutex_unlock(philo->forks[philo->fork1]);
 		return (1);
 	}
-	if (ft_takefork(philo, philo->fork2))
+	if (take_forks(philo, philo->fork2))
 	{
 		ft_mutex_unlock(philo->forks[philo->fork1]);
 		ft_mutex_unlock(philo->forks[philo->fork2]);

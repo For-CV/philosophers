@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "philo_bonus.h"
+#include "philo_bonus.h"
 
 /* @brief Gets the current time since Epoch in miliseconds */
 /* @return The (long)time in miliseconds or -1 on error*/
-long	ft_get_time(void)
+long	get_time(void)
 {
 	struct timeval	tv;
 	long			time;
@@ -24,7 +24,7 @@ long	ft_get_time(void)
 		write(2, "Error: gettimeofday\n", 19);
 		return (-1);
 	}
-	time = (tv.tv_sec * 1000) + (tv.tv_usec  / 1000);
+	time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 	return (time);
 }
 
@@ -39,10 +39,10 @@ int	ft_usleep(const long ms, const t_philo *philo)
 	long	error;
 
 	(void)philo;
-	start = ft_get_time();
+	start = get_time();
 	while (1)
 	{
-		elapsed = ft_get_time();
+		elapsed = get_time();
 		if (elapsed < 0)
 			return (-1);
 		elapsed -= start;

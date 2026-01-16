@@ -1,0 +1,98 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sim4_bonus.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/16 10:26:19 by rafael-m          #+#    #+#             */
+/*   Updated: 2026/01/16 10:27:24 by rafael-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo_bonus.h"
+
+void	*ft_monitoring(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	while (1)
+	{
+		pthread_mutex_lock(&philo->meal_mtx);
+		if (get_time() - philo->last_meal_ms > philo->table->t_to_die)
+		{
+			sem_wait(philo->printer);
+			printf("%ld ms %d died\n", get_time() - philo->start_ms,
+				philo->philo_id);
+			sem_unlink("/die");
+			exit(1);
+		}
+		pthread_mutex_unlock(&philo->meal_mtx);
+		if (usleep(1000))
+			break ;
+	}
+	return (NULL);
+}
+
+/* Imprime la muerte del filósofo, libera recursos y mata el proceso */
+void	kill_philo(t_philo **philos, const int n_philo, sem_t *die)
+{
+	t_philo	*philo;
+	int		status;
+
+	status = 0;
+	philo = philos[n_philo];
+	philo->philo_id = n_philo + 1;
+	status = sem_wait(philo->printer);
+	write(2, "Error: sem_wait\n", 16);
+	printf("%ld ms %d died\n", get_time() - philo->start_ms, philo->philo_id);
+	status += ft_sem_post(philo->printer);
+	if (sem_unlink("/die") < 0 && errno != ENOENT)
+	{
+		status += errno;
+		write(2, "Error: sem_unlink\n", 19);
+	}
+	free_child(philos);
+	status += ft_sem_close(die);
+	exit(status);
+}
+
+/* Inicializa start_time y last_meal_t para todos los filósofos.
+@return 1 en caso de éxito, 0 en caso de error. */
+int	set_time(t_philo **philos)
+{
+	long	current_t;
+	int		n_philos;
+	int		i;
+
+	n_philos = philos[0]->table->n_philos;
+	i = 0;
+	current_t = get_time();
+	if (current_t < 0)
+		return (0);
+	while (i < n_philos)
+	{
+		philos[i]->start_ms = current_t;
+		philos[i]->last_meal_ms = current_t;
+		i++;
+	}
+	return (1);
+}
+
+bool	philo_actions(t_philo **philos, t_philo *philo, int *i, int *ret)
+{
+	if (*i == INT_MAX)
+		*i = 0;
+	*ret = take_forks(philo);
+	if (!*ret)
+		*ret = eating(philo);
+	(*i)++;
+	if (!*ret && philo->table->n_to_eat > 0 && *i >= philo->table->n_to_eat)
+		return (true);
+	if (!*ret)
+		*ret = sleeping(philo, philos);
+	if (!*ret)
+		*ret = thinking(philo);
+	return (false);
+}

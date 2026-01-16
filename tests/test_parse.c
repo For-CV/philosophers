@@ -61,7 +61,7 @@ int ft_test_parse(const int n, const char *s, const int fd)
     // split_string modifies the string, so we use input_str directly (it's inside 'line' copy)
     argv = split_string(input_str, &argc);
     
-    result = ft_parse(&table, argv);
+    result = parser(&table, argv);
 
     write(fd, "Test ", 5);
     ft_putnbr_fd(n, fd);

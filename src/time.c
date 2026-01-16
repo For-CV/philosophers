@@ -14,17 +14,17 @@
 
 // Sets the same starting time and last_meal_time for all
 // philosophers.
-// @return 0 if succesful, 1 if gettimeofday fails.
-int	ft_set_time(t_philo *philos)
+// @return 0 if successful, 1 if gettimeofday fails.
+int	set_time(t_philo *philos)
 {
 	int	i;
 	int	n_philos;
 
-	n_philos = philos->n_philos;
+	n_philos = philos->n_phil;
 	i = 0;
 	while (i < n_philos)
 	{
-		philos[i].start_ms = ft_get_time();
+		philos[i].start_ms = get_time();
 		philos[i].last_meal_ms = philos[i].start_ms;
 		i++;
 	}
@@ -32,7 +32,7 @@ int	ft_set_time(t_philo *philos)
 }
 
 /* Gets the current time since Epoch in miliseconds. */
-long	ft_get_time(void)
+long	get_time(void)
 {
 	struct timeval	tv;
 	long			time;
@@ -48,7 +48,7 @@ int	ft_usleep(const long ms, const t_philo *philo)
 	int		dead;
 	int		error;
 
-	start = ft_get_time();
+	start = get_time();
 	while (1)
 	{
 		error = ft_mutex_lock(philo->dead_m);
@@ -56,7 +56,7 @@ int	ft_usleep(const long ms, const t_philo *philo)
 		error += ft_mutex_unlock(philo->dead_m);
 		if (error || (dead && dead != -2))
 			return (1);
-		if (ft_get_time() - start >= ms)
+		if (get_time() - start >= ms)
 			return (0);
 		if (usleep(50))
 		{

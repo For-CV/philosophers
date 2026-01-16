@@ -50,7 +50,7 @@ int	ft_test_atoi(const int n, const char *s, const int fd)
 	input_str = pipe_pos + 1;
 
 	expected = atoi(expected_str);
-	result = ft_special_atoi(input_str);
+	result = special_atoi(input_str);
 
 	write(fd, "Test ", 5);
 	ft_putnbr_fd(n, fd);

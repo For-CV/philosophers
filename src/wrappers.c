@@ -56,7 +56,7 @@ int	ft_pthread_join(const pthread_t thread)
 {
 	int	ret;
 
-	ret = pthread_join(thread, nullptr);
+	ret = pthread_join(thread, NULL);
 	if (ret)
 		write(2, "Error: pthread_join\n", 20);
 	return (ret);

@@ -15,17 +15,17 @@
 /* @brief Releases resources when philosopher initialization fails.
 Frees the shared table, closes/unlinks the forks semaphore, and destroys
 every `t_philo` node that was already allocated. */
-void	ft_free_when_creating(t_philo **philos, sem_t *forks)
+void	free_when_creating(t_philo **philos, sem_t *forks)
 {
 	if (!philos)
 		return ;
-	ft_close_forks(forks, 0);
-	ft_free_philos(philos);
+	close_forks(forks, 0);
+	free_philos(philos);
 	return ;
 }
 
 /* @brief Closes the forks semaphore and unlinks it on the parent process. */
-void	ft_close_forks(sem_t *forks, int child)
+void	close_forks(sem_t *forks, int child)
 {
 	if (forks)
 	{
@@ -39,7 +39,7 @@ void	ft_close_forks(sem_t *forks, int child)
 /* @brief Frees all child-process resources.
 Closes the printer/seats semaphores, releases the table copy and every
 `t_philo`, and closes the shared forks semaphore without unlinking. */
-void	ft_free_child(t_philo **philos)
+void	free_child(t_philo **philos)
 {
 	int	i;
 	int	n_philos;
@@ -53,7 +53,7 @@ void	ft_free_child(t_philo **philos)
 	if (philos[i])
 	{
 		n_philos = philos[0]->table->n_philos;
-		ft_close_forks((*philos)->forks, 1);
+		close_forks((*philos)->forks, 1);
 	}
 	while (i < n_philos)
 	{
@@ -65,7 +65,7 @@ void	ft_free_child(t_philo **philos)
 
 /* @brief Closes and unlinks the shared semaphores held by the parent. */
 /* Frees `philos[0]->printer` and `philos[0]->seats` handles plus `/forks`. */
-static void	ft_close_sems(t_philo **philos)
+static void	close_sems(t_philo **philos)
 {
 	if (!philos || !philos[0])
 		return ;
@@ -81,14 +81,13 @@ static void	ft_close_sems(t_philo **philos)
 		ft_sem_close(philos[0]->die);
 	if (philos[0]->die)
 		ft_sem_unlink("/die");
-	ft_close_forks((*philos)->forks, 0);
-
+	close_forks((*philos)->forks, 0);
 }
 
 /* @brief Fully frees the philosophers array and shared table
 in the parent. Closes and unlinks semaphores via `ft_close_sems`
  and frees every `t_philo` entry and the array wrapper. */
-void	ft_free_philos(t_philo **philos)
+void	free_philos(t_philo **philos)
 {
 	int	i;
 	int	n_philos;
@@ -99,7 +98,7 @@ void	ft_free_philos(t_philo **philos)
 	n_philos = 0;
 	if (philos[0])
 	{
-		ft_close_sems(philos);
+		close_sems(philos);
 		if (philos[0]->table)
 			n_philos = philos[0]->table->n_philos;
 	}

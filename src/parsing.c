@@ -19,7 +19,7 @@ static int	ft_isspace(const int c)
 	return (0);
 }
 
-static int	ft_skip_space(const char *s)
+static int	skip_space(const char *s)
 {
 	int	i;
 	int	sign;
@@ -37,7 +37,7 @@ static int	ft_skip_space(const char *s)
 	return (i * sign);
 }
 
-int	ft_special_atoi(const char *s)
+int	special_atoi(const char *s)
 {
 	int	i;
 	int	r;
@@ -45,7 +45,7 @@ int	ft_special_atoi(const char *s)
 
 	if (!s || ft_strlen(s) == 0)
 		return (-1);
-	i = ft_skip_space(s);
+	i = skip_space(s);
 	if (i < 0)
 		return (-1);
 	r = 0;
@@ -65,29 +65,29 @@ int	ft_special_atoi(const char *s)
 // Rellena t_table con los argumentos de la CLI, imprime mensajes
 // de error si los hubiera
 // @return 1 en caso de éxito, 0 si los argumentos no son correctos
-int	ft_parse(t_table *table, char **argv)
+int	parser(t_table *table, char **argv)
 {
 	int	t;
 
 	table->n_to_eat = 0;
-	table->n_philos = ft_special_atoi(argv[1]);
+	table->n_philos = special_atoi(argv[1]);
 	if (table->n_philos <= 0 || table->n_philos > MAX_PHILOS)
-		return (write(2, "number_philo must be a positive int < MAX_PHILOS\n", 49), 0);
-	t = ft_special_atoi(argv[2]);
+		return (write(2, NPHIL_ERR, 49), 0);
+	t = special_atoi(argv[2]);
 	if (t <= 0)
 		return (write(2, "time_to_die must be a positive int\n", 35), 0);
 	table->t_to_die = (__useconds_t)t;
-	t = ft_special_atoi(argv[3]);
+	t = special_atoi(argv[3]);
 	if (t <= 0)
 		return (write(2, "time_to_eat must be a positive int\n", 35), 0);
 	table->t_to_eat = (__useconds_t)t;
-	t = ft_special_atoi(argv[4]);
+	t = special_atoi(argv[4]);
 	if (t <= 0)
 		return (write(2, "t_to_sleep must be a positive int\n", 34), 0);
 	table->t_to_sleep = (__useconds_t)t;
 	if (argv[5])
 	{
-		table->n_to_eat = ft_special_atoi(argv[5]);
+		table->n_to_eat = special_atoi(argv[5]);
 		if (table->n_to_eat <= 0)
 			return (write(2, "number_to_eat must be an int\n", 29), 0);
 	}

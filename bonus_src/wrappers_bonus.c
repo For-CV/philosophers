@@ -13,7 +13,7 @@
 #include "philo_bonus.h"
 
 /* sem_wait wrapper with error printing. @return sem_wait errno. */
-int ft_sem_wait(sem_t *sem)
+int	ft_sem_wait(sem_t *sem)
 {
 	int	error;
 
@@ -29,7 +29,8 @@ int ft_sem_wait(sem_t *sem)
 }
 
 /* sem_open wrapper with error printing. @return sem_open errno. */
-sem_t *ft_sem_open(const char *name, int oflag, mode_t mode, unsigned int value)
+sem_t	*ft_sem_open(const char *name, const int oflag, const mode_t mode,
+					const unsigned int value)
 {
 	sem_t	*error;
 
@@ -45,7 +46,7 @@ sem_t *ft_sem_open(const char *name, int oflag, mode_t mode, unsigned int value)
 }
 
 /* sem_post wrapper with error printing. @return sem_post errno. */
-int ft_sem_post(sem_t *sem)
+int	ft_sem_post(sem_t *sem)
 {
 	int	error;
 
@@ -58,7 +59,7 @@ int ft_sem_post(sem_t *sem)
 }
 
 /* sem_close wrapper with error printing. @return sem_close errno. */
-int ft_sem_close(sem_t *sem)
+int	ft_sem_close(sem_t *sem)
 {
 	int	error;
 

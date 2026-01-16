@@ -25,6 +25,7 @@
 
 # define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die,\
  time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
+# define NPHIL_ERR "number_philo must be a positive int < MAX_PHILOS\n"
 
 # define FORK 1
 # define EAT 2
@@ -46,7 +47,7 @@ typedef struct s_table
 typedef struct s_philo
 {
 	int				philo_id;
-	int				n_philos;
+	int				n_phil;
 	__useconds_t	t_to_die;
 	__useconds_t	t_to_eat;
 	__useconds_t	t_to_sleep;
@@ -78,28 +79,29 @@ typedef struct s_mtxs
 /* Utils and parsing */
 
 void	*ft_calloc(size_t nmemb, size_t size);
-int		ft_parse(t_table *table, char **argv);
+int		parser(t_table *table, char **argv);
 int		ft_strlen(const char *s);
-int		ft_special_atoi(const char *s);
-void	ft_putlng_fd(long n, int fd);
+int		special_atoi(const char *s);
+void	putlng_fd(long n, int fd);
 
 /* Creating resources */
 
-int		ft_init_mtxs(t_mtxs *mtxs, int n_philos);
-int		ft_init_philos(t_philo *philos, const t_table *table, t_mtxs *mtxs, int *dead);
-t_philo	*ft_create_philos(const t_table *table, t_mtxs *mtxs);
+int		init_mtxs(t_mtxs *mtxs, int n_philos);
+int		init_philos(t_philo *philos, const t_table *table,\
+	const t_mtxs *mtxs, int *dead);
+t_philo	*create_philos(const t_table *table, t_mtxs *mtxs);
 
 /* Time relative */
 
-int		ft_set_time(t_philo *philos);
-long	ft_get_time(void);
+int		set_time(t_philo *philos);
+long	get_time(void);
 int		ft_usleep(long ms, const t_philo *philo);
 
 /* Freeing memory and liberating resources */
 
-void	ft_free_mtxs(t_mtxs *mtxs, int n_philos);
-void	ft_free_philos(t_philo *philo);
-void	ft_collect_philos(const pthread_t *threads, const t_philo *philos);
+void	free_mtxs(t_mtxs *mtxs, int n_philos);
+void	free_philos(t_philo *philo);
+void	collect_philos(const pthread_t *threads, const t_philo *philos);
 
 /* Function wrappers */
 
@@ -110,17 +112,17 @@ int		ft_pthread_join(pthread_t thread);
 
 /* Simulation */
 
-int		ft_start_sim(t_philo *philos);
+int		start_sim(t_philo *philos);
 // void			ft_set_death(const t_philo *philo);
 void	*ft_monitoring(void *arg);
 
-int		ft_print_action(const t_philo *philo, int action);
-int		ft_check_dead(const t_philo *philo, long current_t);
-void	*ft_philo(void *arg);
-int		ft_create_threads(t_philo *philos);
-int		ft_takefork(const t_philo *philo, int fork);
-int		ft_take_both_forks(const t_philo *philo);
-void	*ft_check_finished(void *arg);
-int		ft_think(const t_philo *philo);
+int		print_action(const t_philo *philo, int action);
+int		check_dead(const t_philo *philo, long current_t);
+void	*philo_sim(void *arg);
+int		create_threads(t_philo *philos);
+int		take_forks(const t_philo *philo, int fork);
+int		take_both_forks(const t_philo *philo);
+void	*check_finished(void *arg);
+int		thinking(const t_philo *philo);
 
 #endif

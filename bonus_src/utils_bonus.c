@@ -12,31 +12,9 @@
 
 #include "philo_bonus.h"
 
-/* Imprime un número a stdout */
-// void    ft_putnbr(int n)
-// {
-//         int     nbr;
-
-//         if (n == -2147483648)
-//         {
-//                 write(1, "-2147483648", 11);
-//                 return ;
-//         }
-//         if (n < 0)
-//         {
-//                 write (1, "-", 1);
-//                 n = -n;
-//         }
-//         nbr = n;
-//         if (nbr > 9)
-//                 ft_putnbr(n / 10);
-//         nbr = (n % 10) + 48;
-//         write (1, &nbr, 1);
-// }
-
 // Pequeño retardo inicial para escalonar a los filósofos según su orden
 // de creación. @return 1 en caso de éxito, 0 si hay error.
-int	ft_wait_turn(const t_philo *philo)
+int	wait_turn(const t_philo *philo)
 {
 	long	delay;
 
@@ -53,10 +31,10 @@ int	ft_wait_turn(const t_philo *philo)
 }
 
 /* @brief Calloc implementation with error printing */
-void *ft_calloc(const size_t nmemb, const size_t size)
+void	*ft_calloc(const size_t nmemb, const size_t size)
 {
 	void	*result;
-	size_t 	bytes;
+	size_t	bytes;
 	size_t	i;
 
 	if (nmemb == 0 || size == 0)
@@ -90,4 +68,29 @@ int	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+bool	wait_sems(const t_philo *philo, int *ret)
+{
+	if (ft_sem_wait(philo->seats) < 0)
+	{
+		*ret = 1;
+		return (true);
+	}
+	if (check_dead(philo))
+	{
+		*ret = (ft_sem_post(philo->seats) + 1);
+		return (true);
+	}
+	if (ft_sem_wait(philo->forks) < 0)
+	{
+		*ret = (ft_sem_post(philo->seats) + 1);
+		return (true);
+	}
+	if (ft_sem_wait(philo->printer))
+	{
+		*ret = 1;
+		return (true);
+	}
+	return (false);
 }

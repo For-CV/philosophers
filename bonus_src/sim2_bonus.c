@@ -12,18 +12,17 @@
 
 #include "philo_bonus.h"
 
-
 /* @brief Checks if any philosopher has died and prints this philosopher's dead
  if true. */
 /* @return -1 if another philosopher has died, 1 if this philosopher dies 
 while checking dead, else 0 */
-int	ft_check_dead(const t_philo *philo)
+int	check_dead(const t_philo *philo)
 {
-	sem_t *s;
+	sem_t	*s;
 	long	time;
 
 	errno = 0;
-	time = ft_get_time();
+	time = get_time();
 	if (time == -1)
 		return (-1);
 	s = sem_open("/die", 0, 0, 0);
@@ -43,38 +42,35 @@ int	ft_check_dead(const t_philo *philo)
 
 /* @brief Semwaits for seats, two forks and printer, writing
 corresponding error messages */
-/* @return 0 if everithing went ok, 1 if any sem_wait error */
+/* @return 0 if everything went ok, 1 if any sem_wait error */
 static int	ft_sems_wait(const t_philo *philo)
 {
-	if (ft_sem_wait(philo->seats) < 0)
-		return (1);
-	if (ft_check_dead(philo))
-		return (ft_sem_post(philo->seats) + 1);
-	if (ft_sem_wait(philo->forks) < 0)
-		return (ft_sem_post(philo->seats) + 1);
-	if (ft_sem_wait(philo->printer))
-		return (1);
-	printf("%ld ms %d has taken a fork\n", ft_get_time() - philo->start_ms, philo->philo_id);
+	int	ret;
+
+	if (wait_sems(philo, &ret))
+		return (ret);
+	printf("%ld ms %d has taken a fork\n", get_time() - philo->start_ms,
+		philo->philo_id);
 	ft_sem_post(philo->printer);
 	if (ft_sem_wait(philo->forks) < 0)
 		return (ft_sem_post(philo->forks) + ft_sem_post(philo->seats) + 1);
 	if (ft_sem_wait(philo->printer))
 		return (1);
-	printf("%ld ms %d has taken a fork\n", ft_get_time() - philo->start_ms, philo->philo_id);
+	printf("%ld ms %d has taken a fork\n", get_time() - philo->start_ms,
+		philo->philo_id);
 	ft_sem_post(philo->printer);
 	if (sem_wait(philo->printer) < 0)
 	{
 		ft_sem_post(philo->forks);
 		ft_sem_post(philo->forks);
-		ft_sem_post(philo->seats);
-		return (1);		
+		return (ft_sem_post(philo->seats), 1);
 	}
 	return (0);
 }
 
 /* @brief Sem_posts for seats and two forks, writing
 corresponding error messages if necessary */
-/* @return 0 if everithing went ok, 1 if any sem_post error */
+/* @return 0 if everything went ok, 1 if any sem_post error */
 int	ft_sems_post(const t_philo *philo)
 {
 	int	ret;
@@ -89,19 +85,17 @@ int	ft_sems_post(const t_philo *philo)
 /* Simulation of taking two forks (with sem_wait) */
 /* @return 0 if everything went ok, 1 if any semaphore operation failed
 or checked that a philosopher died */
-int	ft_takeforks(t_philo *philo)
+int	take_forks(t_philo *philo)
 {
-	int		philo_id;
 	long	start_t;
 	int		dead;
 
-	philo_id = philo->philo_id;
-	start_t = ft_get_time();
+	start_t = get_time();
 	if (start_t < 0)
 		return (1);
 	if (ft_sems_wait(philo))
 		return (1);
-	dead = ft_check_dead(philo);
+	dead = check_dead(philo);
 	pthread_mutex_lock(&philo->meal_mtx);
 	if (!dead && (start_t - philo->last_meal_ms <= philo->table->t_to_die))
 	{
@@ -111,8 +105,6 @@ int	ft_takeforks(t_philo *philo)
 	else
 	{
 		pthread_mutex_unlock(&philo->meal_mtx);
-		if (dead == 1)
-			printf("%ld ms %d died\n", start_t - philo->start_ms, philo_id);
 		ft_sem_post(philo->printer);
 		if (sem_unlink("/die") < 0 && errno != ENOENT)
 			write(2, "Error: sem_unlink\n", 19);
@@ -120,21 +112,21 @@ int	ft_takeforks(t_philo *philo)
 	return (dead);
 }
 
-/* @brief Simulation of sleeping time_to_sleep miliseconds */
+/* @brief Simulation of sleeping time_to_sleep milliseconds */
 /* @return 0 if everything went ok, 1 if any semaphore operation failed
 or checked that a philosopher died  */
-int	ft_sleep(const t_philo *philo, t_philo **philos)
+int	sleeping(const t_philo *philo, t_philo **philos)
 {
 	int		dead;
 	int		philo_id;
 	long	time;
 
 	philo_id = philo->philo_id;
-	time = ft_get_time();
+	time = get_time();
 	dead = ft_sem_wait(philo->printer);
 	if (time < 0 || dead)
-		ft_kill_philo(philos, philo->philo_id - 1, philo->die);
-	dead += ft_check_dead(philo);
+		kill_philo(philos, philo->philo_id - 1, philo->die);
+	dead += check_dead(philo);
 	if (dead)
 		return (ft_sem_post(philo->printer), dead);
 	printf("%ld ms %d is sleeping\n", time - philo->start_ms, philo_id);

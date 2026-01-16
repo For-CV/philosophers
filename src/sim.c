@@ -14,16 +14,16 @@
 
 // Ejecuta la acción de dormir.  @return Devuelve 1 si ha muerto éste
 // o algun otro filósofo ó 0 en caso de éxito.
-static inline int	ft_sleep(const t_philo *philo)
+static inline int	sleeping(const t_philo *philo)
 {
 	long	current_t;
 	int		dead;
 
-	current_t = ft_get_time();
-	dead = ft_check_dead(philo, current_t);
+	current_t = get_time();
+	dead = check_dead(philo, current_t);
 	if (!dead)
 	{
-		ft_print_action(philo, SLEEP);
+		print_action(philo, SLEEP);
 		dead = ft_usleep(philo->t_to_sleep, philo);
 	}
 	return (dead);
@@ -31,18 +31,18 @@ static inline int	ft_sleep(const t_philo *philo)
 
 // Ejecuta la acción de comer. @return Devuelve 1 si ha muerto éste
 // o algun otro filósofo ó 0 en caso de éxito.
-static inline int	ft_eat(t_philo *philo)
+static inline int	eating(t_philo *philo)
 {
 	int		dead;
 	int		ret;
 
-	dead = ft_check_dead(philo, ft_get_time());
+	dead = check_dead(philo, get_time());
 	if (!dead)
 	{
-		ft_print_action(philo, EAT);
+		print_action(philo, EAT);
 		if (ft_mutex_lock(philo->last_meal_mtx))
 			return (1);
-		philo->last_meal_ms = ft_get_time();
+		philo->last_meal_ms = get_time();
 		ft_mutex_unlock(philo->last_meal_mtx);
 		dead = ft_usleep(philo->t_to_eat, philo);
 	}
@@ -53,9 +53,9 @@ static inline int	ft_eat(t_philo *philo)
 
 static bool	philo_actions(t_philo *philo, int i)
 {
-	if (ft_sleep(philo))
+	if (sleeping(philo))
 		return (true);
-	if (ft_think(philo))
+	if (thinking(philo))
 		return (true);
 	if (philo->n_to_eat && (i == philo->n_to_eat))
 	{
@@ -68,53 +68,53 @@ static bool	philo_actions(t_philo *philo, int i)
 }
 
 // Ya en cada hilo, el filósofo ejecuta las acciones pertinentes
-void	*ft_philo(void *arg)
+void	*philo_sim(void *arg)
 {
 	t_philo	*philo;
 	int		i;
 
 	i = 0;
 	philo = (t_philo *)arg;
-	if (philo->n_philos == 1)
+	if (philo->n_phil == 1)
 	{
-		ft_takefork(philo, philo->fork1);
+		take_forks(philo, philo->fork1);
 		ft_usleep(philo->t_to_die, philo);
 		ft_mutex_unlock(philo->forks[philo->fork1]);
-		return (nullptr);
+		return (NULL);
 	}
 	if (philo->philo_id % 2 == 0)
 		usleep(1000);
 	while (!philo->n_to_eat || i <= (philo->n_to_eat + 1))
 	{
-		if (ft_take_both_forks(philo))
+		if (take_both_forks(philo))
 			break ;
-		if (ft_eat(philo))
+		if (eating(philo))
 			break ;
 		i++;
 		if (philo_actions(philo, i))
 			break ;
 	}
-	return (nullptr);
+	return (NULL);
 }
 
-//Inicia un hilo por philósofo pasándole la estructura tphilo correspondiente.
-int	ft_start_sim(t_philo *philos)
+//Inicia un hilo por filósofo pasándole la estructura tphilo correspondiente.
+int	start_sim(t_philo *philos)
 {
 	pthread_t	monitoring;
 	pthread_t	finished;
 
-	if (ft_set_time(philos))
+	if (set_time(philos))
 		return (1);
-	philos->threads = (pthread_t *)ft_calloc(philos->n_philos, sizeof(pthread_t));
+	philos->threads = (pthread_t *)ft_calloc(philos->n_phil, sizeof(pthread_t));
 	if (!philos->threads)
 		return (1);
-	if (pthread_create(&(finished), nullptr, ft_check_finished, (void *)philos))
+	if (pthread_create(&(finished), NULL, check_finished, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
-	if (ft_create_threads(philos))
+	if (create_threads(philos))
 		return (1);
-	if (pthread_create(&(monitoring), nullptr, ft_monitoring, (void *)philos))
+	if (pthread_create(&(monitoring), NULL, ft_monitoring, (void *)philos))
 		return (write(2, "Error: pthread_create\n", 22), 1);
-	ft_collect_philos(philos->threads, philos);
+	collect_philos(philos->threads, philos);
 	ft_pthread_join(monitoring);
 	ft_pthread_join(finished);
 	return (0);

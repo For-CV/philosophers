@@ -13,13 +13,13 @@
 #include "philo.h"
 
 // Recoge los filósofos una vez han terminado.
-void	ft_collect_philos(const pthread_t *threads, const t_philo *philos)
+void	collect_philos(const pthread_t *threads, const t_philo *philos)
 {
 	int		dead;
 	int		n_philos;
 
 	dead = 0;
-	n_philos = philos->n_philos;
+	n_philos = philos->n_phil;
 	while (dead < n_philos)
 	{
 		ft_pthread_join(threads[dead]);
@@ -28,7 +28,7 @@ void	ft_collect_philos(const pthread_t *threads, const t_philo *philos)
 }
 
 // Libera y destruye los mutexes, libera y destruye n_philos forks.
-void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
+void	free_mtxs(t_mtxs *mtxs, int n_philos)
 {
 	int	i;
 
@@ -60,7 +60,7 @@ void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
 // Libera las estructuras de cada filósofo y el array, incluidos
 // los mutexes. El flag initiated es para saber si los mutexes
 // printer y dead_m están iniciados con pthread_mute_init.
-void	ft_free_philos(t_philo *philo)
+void	free_philos(t_philo *philo)
 {
 	if (!philo)
 		return ;
