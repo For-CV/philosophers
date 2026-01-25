@@ -61,7 +61,7 @@ void	print_eating(t_philo *philo, const long t, int *dead)
 {
 	printf("%ld ms %d is eating\n", t - philo->start_ms, philo->philo_id);
 	*dead += ft_sem_post(philo->printer);
-	set_meal_time(philo, t, &*dead);
+	set_meal_time(philo, t, dead);
 	*dead += ft_sem_post(philo->forks);
 	*dead += ft_sem_post(philo->forks);
 	*dead += ft_sem_post(philo->seats);
