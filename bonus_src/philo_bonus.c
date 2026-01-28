@@ -27,6 +27,8 @@ static int	init_sem(t_philo **philos, sem_t *forks)
 	seats = ft_sem_open("/seats", O_CREAT, 0644,
 			((*philos)->table->n_philos + 1) / 2);
 	printer = ft_sem_open("/printer", O_CREAT | O_EXCL, 0644, 1);
+	if (die == SEM_FAILED || seats == SEM_FAILED || printer == SEM_FAILED)
+		return (free_philos(philos), 1);
 	i = 0;
 	while (i < philos[0]->table->n_philos)
 	{
@@ -36,14 +38,12 @@ static int	init_sem(t_philo **philos, sem_t *forks)
 		philos[i]->forks = forks;
 		i++;
 	}
-	if (die == SEM_FAILED || seats == SEM_FAILED || printer == SEM_FAILED)
-		return (free_philos(philos), 1);
 	return (0);
 }
 
 /* Creates an array of [number of philosophers] t_philo *philo and initializes
-each one of them */
-/* @return The pointer to the array on success, NULL on failure, and 
+each one of them
+ RETURN: The pointer to the array on success, NULL on failure, and
 liberates resources  */
 static t_philo	**create_philos(t_table *table, sem_t *forks)
 {
@@ -84,14 +84,17 @@ int	main(const int argc, char **argv)
 		return (write(2, ERR_MSG, 128), 1);
 	if (!parser(&table, argv))
 		return (1);
+	sem_unlink("/forks");
+	sem_unlink("/die");
+	sem_unlink("/seats");
+	sem_unlink("/printer");
 	forks = ft_sem_open("/forks", O_CREAT | O_EXCL, 0644, table.n_philos);
-	if ((forks) == SEM_FAILED)
+	if (forks == SEM_FAILED)
 		return (close_forks(forks, 0), 1);
 	philos = create_philos(&table, forks);
 	if (!philos)
 		return (1);
 	status = start_sim(philos);
-	status += ft_sem_close((*philos)->die);
 	free_philos(philos);
 	return (status);
 }

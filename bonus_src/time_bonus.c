@@ -34,9 +34,9 @@ philosopher dies.*/
 int	ft_usleep(const long ms, const t_philo *philo)
 {
 	long	start;
-	long	elapsed;
-	long	remaining_u;
 	long	error;
+	long	remaining_u;
+	long	elapsed;
 
 	(void)philo;
 	start = get_time();
@@ -49,8 +49,8 @@ int	ft_usleep(const long ms, const t_philo *philo)
 		if (elapsed >= ms)
 			break ;
 		remaining_u = (ms - elapsed) * 1000;
-		if (remaining_u > 100)
-			error = usleep(100);
+		if (remaining_u > 500)
+			error = usleep(500);
 		else
 			error = usleep(remaining_u);
 		if (error)

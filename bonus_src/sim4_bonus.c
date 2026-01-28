@@ -20,6 +20,11 @@ void	*ft_monitoring(void *arg)
 	while (1)
 	{
 		pthread_mutex_lock(&philo->meal_mtx);
+		if (!philo->sim_active)
+		{
+			pthread_mutex_unlock(&philo->meal_mtx);
+			break ;
+		}
 		if (get_time() - philo->last_meal_ms > philo->table->t_to_die)
 		{
 			sem_wait(philo->printer);
@@ -45,14 +50,10 @@ void	kill_philo(t_philo **philos, const int n_philo, sem_t *die)
 	philo = philos[n_philo];
 	philo->philo_id = n_philo + 1;
 	status = sem_wait(philo->printer);
-	write(2, "Error: sem_wait\n", 16);
 	printf("%ld ms %d died\n", get_time() - philo->start_ms, philo->philo_id);
 	status += ft_sem_post(philo->printer);
 	if (sem_unlink("/die") < 0 && errno != ENOENT)
-	{
 		status += errno;
-		write(2, "Error: sem_unlink\n", 19);
-	}
 	free_child(philos);
 	status += ft_sem_close(die);
 	exit(status);

@@ -37,8 +37,6 @@ static int	free_and_exit(t_philo **philos, sem_t *die, t_philo *philo, int ret)
 	pthread_mutex_destroy(&philo->meal_mtx);
 	free_child(philos);
 	sem_close(die);
-	if (sem_unlink("/die") < 0 && errno != ENOENT)
-		write(2, "Error: sem_unlink\n", 19);
 	if (ret == 1)
 		exit(1);
 	exit(EXIT_SUCCESS);
@@ -57,9 +55,9 @@ static int	philo_sim(t_philo **philos, const int n_philo, sem_t *die)
 	ret = 0;
 	philo = philos[n_philo];
 	philo->philo_id = n_philo + 1;
+	philo->sim_active = true;
 	if (pthread_create(&philo->monitor, NULL, ft_monitoring, philo))
 		exit(1);
-	pthread_detach(philo->monitor);
 	if (wait_turn(philos[0]))
 		ret = 1;
 	while (!ret && i >= 0)
@@ -67,11 +65,18 @@ static int	philo_sim(t_philo **philos, const int n_philo, sem_t *die)
 		if (philo_actions(philos, philo, &i, &ret))
 			break ;
 	}
+	pthread_mutex_lock(&philo->meal_mtx);
+	philo->sim_active = false;
+	pthread_mutex_unlock(&philo->meal_mtx);
+	if (pthread_join(philo->monitor, NULL))
+		write(2, "Error: pthread_join\n", 20);
 	return (free_and_exit(philos, die, philo, ret));
 }
 
-bool	fork_philos(t_philo **philos, int *i, pid_t pid, pid_t *pids)
+static bool	fork_philos(t_philo **philos, pid_t *pids, int i)
 {
+	pid_t	pid;
+
 	pid = fork();
 	if (pid < 0)
 	{
@@ -79,36 +84,34 @@ bool	fork_philos(t_philo **philos, int *i, pid_t pid, pid_t *pids)
 		return (true);
 	}
 	if (pid == 0)
-		philo_sim(philos, *i, (*philos)->die);
-	pids[(*i)] = pid;
-	(*i)++;
+		philo_sim(philos, i, (*philos)->die);
+	pids[i] = pid;
 	return (false);
 }
 
-/* @brief Starts the simulation. Creates the pid_t array (probably should do it
+/* Starts the simulation. Creates the pid_t array (probably should do it
 in another function, merged with the ft_pid_error function), and forks once for
 each philosopher, then waits for each process. Liberates all resources of the
 father */
-/* @return 0 if everything went ok, 1 for any failure */
+/* RETURN: 0 if everything went ok, 1 for any failure */
 int	start_sim(t_philo **philos)
 {
 	int		i;
 	int		n_philos;
-	pid_t	pid;
 	pid_t	*pids;
 
 	if (!set_time(philos))
 		return (1);
 	i = 0;
-	pid = 0;
 	n_philos = philos[i]->table->n_philos;
 	pids = (pid_t *)ft_calloc(n_philos, sizeof(pid_t));
 	if (!pids)
 		return (write(2, "Error: malloc\n", 14), 1);
 	while (i < n_philos)
 	{
-		if (fork_philos(philos, &i, pid, pids))
+		if (fork_philos(philos, pids, i))
 			break ;
+		i++;
 	}
 	wait_philos(i, pids);
 	free(pids);

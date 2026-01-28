@@ -79,7 +79,7 @@ int	ft_sem_unlink(const char *name)
 	if (!name)
 		return (write(2, "Error: sem_unlink\n", 18), 1);
 	error = sem_unlink(name);
-	if (error)
+	if (error && errno != ENOENT)
 		write(2, "Error: sem_unlink\n", 18);
 	return (error);
 }

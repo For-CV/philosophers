@@ -27,6 +27,7 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <stdbool.h>
 
 # define ERR_MSG "Arguments expected: number_of_philosophers | time_to_die,\
  time_to_eat | time_to_sleep | [number_of_times_each_philosopher_must_eat]\n"
@@ -64,6 +65,7 @@ typedef struct s_philo
 	int				philo_id;
 	pthread_t		monitor;
 	pthread_mutex_t	meal_mtx;
+	bool			sim_active;
 }	t_philo;
 
 /* Utils and parsing */

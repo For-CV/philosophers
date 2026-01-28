@@ -49,7 +49,7 @@ static void	set_meal_time(t_philo *philo, long t, int *dead)
 	*dead = ft_usleep(philo->table->t_to_eat, philo);
 }
 
-void	ft_kill_philo(const t_philo *philo, const long t, int *dead)
+static void	ft_kill_philo(const t_philo *philo, const long t, int *dead)
 {
 	printf("%ld ms %d died\n", t - philo->start_ms, philo->philo_id);
 	if (sem_unlink("/die") < 0 && errno != ENOENT)
@@ -57,7 +57,7 @@ void	ft_kill_philo(const t_philo *philo, const long t, int *dead)
 	*dead = 1;
 }
 
-void	print_eating(t_philo *philo, const long t, int *dead)
+static void	print_eating(t_philo *philo, const long t, int *dead)
 {
 	printf("%ld ms %d is eating\n", t - philo->start_ms, philo->philo_id);
 	*dead += ft_sem_post(philo->printer);
