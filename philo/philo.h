@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 22:11:54 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/02 13:03:46 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <stdint.h>
 # include <limits.h>
 # include <errno.h>
+# include <stdbool.h>
 
 # define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die,\
  time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
