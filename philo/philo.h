@@ -6,7 +6,7 @@
 /*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/02 13:03:46 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/02 13:23:51 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ void	putlng_fd(long n, int fd);
 /* Creating resources */
 
 int		init_mtxs(t_mtxs *mtxs, int n_philos);
-int		init_philos(t_philo *philos, const t_table *table,\
-	const t_mtxs *mtxs, int *dead);
+int		init_philos(t_philo *philos, const t_table *table,
+			const t_mtxs *mtxs, int *dead);
 t_philo	*create_philos(const t_table *table, t_mtxs *mtxs);
 
 /* Time relative */
