@@ -107,7 +107,6 @@ int		take_forks(t_philo *philo);
 int		check_dead(const t_philo *philo);
 int		ft_sems_post(const t_philo *philo);
 int		sleeping(const t_philo *philo, t_philo *philos);
-void	kill_philo(t_philo *philos, int n_philo, sem_t *die);
 int		eating(t_philo *philo);
 int		set_time(t_philo *philos);
 bool	philo_actions(t_philo *philos, t_philo *philo, int *i, int *ret);

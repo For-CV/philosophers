@@ -41,25 +41,6 @@ void	*ft_monitoring(void *arg)
 	return (NULL);
 }
 
-/* Imprime la muerte del filósofo, libera recursos y mata el proceso */
-void	kill_philo(t_philo *philos, const int n_philo, sem_t *die)
-{
-	t_philo	*philo;
-	int		status;
-
-	status = 0;
-	philo = &philos[n_philo];
-	philo->philo_id = n_philo + 1;
-	status = sem_wait(philo->printer);
-	printf("%ld ms %d died\n", get_time() - philo->start_ms, philo->philo_id);
-	status += ft_sem_post(philo->printer);
-	if (sem_unlink("/die") < 0 && errno != ENOENT)
-		status += errno;
-	free_child(philos);
-	status += ft_sem_close(die);
-	exit(status);
-}
-
 /* Inicializa start_time y last_meal_t para todos los filósofos.
 @return 1 en caso de éxito, 0 en caso de error. */
 int	set_time(t_philo *philos)
