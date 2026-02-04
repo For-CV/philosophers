@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 22:35:53 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:22:55 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	ft_usleep(const long ms, const t_philo *philo)
 			return (1);
 		if (get_time() - start >= ms)
 			return (0);
-		if (usleep(50))
+		if (usleep(500))
 		{
 			write(2, "Error: usleep\n", 14);
 			return (1);

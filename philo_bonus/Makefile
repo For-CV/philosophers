@@ -26,23 +26,6 @@ TSAN_OBJ = $(SRC:.c=.tsan.o)
 # Para debug (tester)
 DEBUG_OBJ = $(SRC:.c=.debug.o)
 
-# Bonus Tests
-TEST_BONUS_C_FILES = tests/test_units_bonus.c\
-	tests/test_atoi_bonus.c\
-	tests/test_parse_bonus.c\
-	utils_bonus.c\
-	parsing_bonus.c\
-	time_bonus.c\
-	free_bonus.c\
-	sim_bonus.c\
-	sim2_bonus.c\
-	sim3_bonus.c\
-	sim4_bonus.c\
-	wrappers_bonus.c
-
-TEST_BONUS_SH_FILES = ../tests/test_integration_bonus.sh
-TEST_RUNNER_BONUS_C = ../tests/test_runner_bonus_c
-
 # Reglas
 all: ob_mssg $(NAME)
 	
@@ -81,17 +64,6 @@ check:
 	@cppcheck --inconclusive --enable=all --suppress=missingIncludeSystem --inconclusive --std=c11 --check-level=exhaustive $(SRC)
 	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
 
-tests: $(TSAN_NAME) $(DEBUG_NAME) $(TEST_RUNNER_C)
-	mv $(TEST_RUNNER_C) tests
-	@echo -e "\n🔍 \e[36m--- Running tests ---\e[0m\n"
-	bash $(TEST_SH_FILES)
-	@echo -e "\n\e[36mTests Terminados!\e[0m \n"
-
-$(TEST_RUNNER_BONUS_C): $(TEST_BONUS_C_FILES)
-	@echo -e "\n🚧 \e[36mCompilando tests bonus con fsanitize=address,undefined...\e[0m\n"
-	$(CC) $(CFLAGS) -g -fsanitize=address,undefined -O0 $(TEST_BONUS_C_FILES) -o $(TEST_RUNNER_BONUS_C)
-	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
-
 clean:
 	rm -f $(OBJ) $(BONUS_OBJ) $(TSAN_OBJ) $(DEBUG_OBJ)
 
@@ -102,4 +74,4 @@ re: fclean all
 
 
 
-.PHONY: all check tests clean fclean re philo_tsan
+.PHONY: all check clean fclean re philo_tsan

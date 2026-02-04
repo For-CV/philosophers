@@ -6,7 +6,6 @@ TSAN_CFLAGS = $(CFLAGS) -g -O0 -fsanitize=thread
 DEBUG_NAME = tester
 DEBUG_CFLAGS = $(CFLAGS) -g -O0
 
-# Parte obligatoria
 SRC = main.c\
 	utils.c\
 	parsing.c\
@@ -27,23 +26,6 @@ TSAN_OBJ = $(SRC:.c=.tsan.o)
 # Para debug (tester)
 DEBUG_OBJ = $(SRC:.c=.debug.o)
 
-# Tests
-TEST_C_FILES = tests/test_units.c\
-	../tests/test_atoi.c\
-	../tests/test_parse.c\
-	utils.c\
-	parsing.c\
-	time.c\
-	free.c\
-	sim.c\
-	sim2.c\
-	sim3.c\
-	create.c\
-	wrappers.c\
-	monitoring.c
-
-TEST_SH_FILES = tests/test.sh
-TEST_RUNNER_C = test_runner_c
 
 # Reglas
 all: ob_mssg $(NAME)
@@ -69,9 +51,6 @@ tsan_mssg:
 debug_mssg:
 	@echo -e "\n🚧 \e[36mCompilando para debug (tester)...\e[0m\n"
 
-bonus_msg:
-	@echo -e "\n🚧 \e[36mCompilando bonus...\e[0m\n"
-
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -86,17 +65,6 @@ check:
 	@cppcheck --inconclusive --enable=all --suppress=missingIncludeSystem --inconclusive --std=c11 --check-level=exhaustive $(SRC) $(BONUS_SRC)
 	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
 
-tests: $(TSAN_NAME) $(DEBUG_NAME) $(TEST_RUNNER_C)
-	mv $(TEST_RUNNER_C) tests
-	@echo -e "\n🔍 \e[36m--- Running tests ---\e[0m\n"
-	bash $(TEST_SH_FILES)
-	@echo -e "\n\e[36mTests Terminados!\e[0m \n"
-
-$(TEST_RUNNER_C): $(TEST_C_FILES)
-	@echo -e "\n🚧 \e[36mCompilando tests con fsanitize=address,undefined...\e[0m\n"
-	$(CC) $(CFLAGS) -g -fsanitize=address,undefined -O0 $(TEST_C_FILES) -o $(TEST_RUNNER_C)
-	@echo -e "\n✅ \e[36mTerminado!\e[0m\n"
-
 clean:
 	rm -f $(OBJ) $(BONUS_OBJ) $(TSAN_OBJ) $(DEBUG_OBJ)
 
@@ -107,4 +75,4 @@ re: fclean all
 
 
 
-.PHONY: all  check tests clean fclean re philo_tsan
+.PHONY: all  check clean fclean re philo_tsan

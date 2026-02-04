@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   monitoring.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 22:17:22 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 22:35:32 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:24:00 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void	*ft_monitoring(void *arg)
 		}
 		ft_mutex_unlock(philos[0].dead_m);
 		monitor_dead(philos, i);
-		usleep(100);
+		usleep(500);
 		i++;
 	}
 	return (NULL);
