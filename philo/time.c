@@ -6,7 +6,7 @@
 /*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/04 20:22:55 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:45:33 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,16 @@
 // @return 0 if successful, 1 if gettimeofday fails.
 int	set_time(t_philo *philos)
 {
-	int	i;
-	int	n_philos;
+	int		i;
+	int		n_philos;
+	long	start_time;
 
 	n_philos = philos->n_phil;
 	i = 0;
+	start_time = get_time();
 	while (i < n_philos)
 	{
-		philos[i].start_ms = get_time();
+		philos[i].start_ms = start_time;
 		philos[i].last_meal_ms = philos[i].start_ms;
 		i++;
 	}

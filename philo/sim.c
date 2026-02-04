@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sim.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 19:08:53 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 22:03:58 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:50:48 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,11 @@ static inline int	eating(t_philo *philo)
 	dead = check_dead(philo, get_time());
 	if (!dead)
 	{
-		print_action(philo, EAT);
 		if (ft_mutex_lock(philo->last_meal_mtx))
 			return (1);
 		philo->last_meal_ms = get_time();
 		ft_mutex_unlock(philo->last_meal_mtx);
+		print_action(philo, EAT);
 		dead = ft_usleep(philo->t_to_eat, philo);
 	}
 	ret = ft_mutex_unlock(philo->forks[philo->fork2]);

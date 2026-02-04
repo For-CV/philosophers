@@ -6,7 +6,7 @@
 /*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 22:17:22 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/04 20:24:00 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:56:56 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,10 @@ void	*ft_monitoring(void *arg)
 	while (1)
 	{
 		if (i >= philos[0].n_phil)
+		{
+			usleep(100);
 			i = 0;
+		}
 		ft_mutex_lock(philos[0].dead_m);
 		dead = *(philos[0].dead);
 		if (dead)
@@ -81,7 +84,6 @@ void	*ft_monitoring(void *arg)
 		}
 		ft_mutex_unlock(philos[0].dead_m);
 		monitor_dead(philos, i);
-		usleep(500);
 		i++;
 	}
 	return (NULL);
