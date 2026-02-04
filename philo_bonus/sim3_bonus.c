@@ -32,6 +32,7 @@ int	wait_philos(const int n_philos, const pid_t *pids)
 				j = 0;
 				while (j < n_philos)
 					kill(pids[j++], SIGKILL);
+				return (0);
 			}
 		}
 		else
@@ -43,24 +44,29 @@ int	wait_philos(const int n_philos, const pid_t *pids)
 
 static void	set_meal_time(t_philo *philo, long t, int *dead)
 {
-	pthread_mutex_lock(&philo->meal_mtx);
+	ft_sem_wait(philo->meal_sem);
 	philo->last_meal_ms = t;
-	pthread_mutex_unlock(&philo->meal_mtx);
-	*dead = ft_usleep(philo->table->t_to_eat, philo);
+	ft_sem_post(philo->meal_sem);
+	*dead = ft_usleep(philo->table->t_to_eat);
 }
 
-static void	ft_kill_philo(const t_philo *philo, const long t, int *dead)
+static void	ft_kill_philo(const t_philo *philo, const long t)
 {
+	sem_wait(philo->die);
+	sem_wait(philo->printer);
 	printf("%ld ms %d died\n", t - philo->start_ms, philo->philo_id);
-	if (sem_unlink("/die") < 0 && errno != ENOENT)
-		write(2, "Error: sem_unlink\n", 18);
-	*dead = 1;
+	exit(1);
 }
 
 static void	print_eating(t_philo *philo, const long t, int *dead)
 {
+	if (ft_sem_wait(philo->printer))
+	{
+		*dead = 1;
+		return ;
+	}
 	printf("%ld ms %d is eating\n", t - philo->start_ms, philo->philo_id);
-	*dead += ft_sem_post(philo->printer);
+	*dead = ft_sem_post(philo->printer);
 	set_meal_time(philo, t, dead);
 	*dead += ft_sem_post(philo->forks);
 	*dead += ft_sem_post(philo->forks);
@@ -69,33 +75,23 @@ static void	print_eating(t_philo *philo, const long t, int *dead)
 
 /* @brief Simulation of eating time_to_eat milliseconds */
 /* @return 0 if everything went ok. 1 if any semaphore operation failed,
- gettimeofday failed or time between lunches is bigger than time_to_die.
-  -1 if checked that another philosopher died  */
+ gettimeofday failed or time between lunches is bigger than time_to_die. */
 int	eating(t_philo *philo)
 {
 	long	t;
 	int		dead;
 
-	if (ft_sem_wait(philo->printer))
-	{
-		ft_sem_post(philo->forks);
-		ft_sem_post(philo->forks);
-		ft_sem_post(philo->seats);
-		return (1);
-	}
-	if (check_dead(philo))
-	{
-		if (ft_sems_post(philo))
-			return (1);
-		return (-1);
-	}
 	t = get_time();
-	dead = 0;
+	if (t < 0)
+		return (1);
+	ft_sem_wait(philo->meal_sem);
 	if (t - philo->last_meal_ms > philo->table->t_to_die)
 	{
-		ft_kill_philo(philo, t, &dead);
-		return (ft_sems_post(philo), 1);
+		ft_sem_post(philo->meal_sem);
+		ft_kill_philo(philo, t);
 	}
+	ft_sem_post(philo->meal_sem);
+	dead = 0;
 	print_eating(philo, t, &dead);
 	return (dead);
 }

@@ -64,7 +64,7 @@ typedef struct s_philo
 	int				meals_eaten;
 	int				philo_id;
 	pthread_t		monitor;
-	pthread_mutex_t	meal_mtx;
+	sem_t			*meal_sem;
 	bool			sim_active;
 }	t_philo;
 
@@ -75,6 +75,7 @@ int		special_atoi(const char *s);
 int		parser(t_table *table, char **argv);
 int		ft_strlen(const char *s);
 void	ft_putnbr(int n);
+void	init_name(char *buf);
 
 /* Functions wrappers */
 
@@ -87,30 +88,29 @@ int		ft_sem_unlink(const char *name);
 
 /* Freeing allocated memory and liberating resources */
 
-void	free_when_creating(t_philo **philos, sem_t *forks);
-void	free_philos(t_philo **philos);
-void	free_child(t_philo **philos);
+void	free_when_creating(t_philo *philos, sem_t *forks);
+void	free_philos(t_philo *philos);
+void	free_child(t_philo *philos);
 void	close_forks(sem_t *forks, int child);
 
 /* Time relative */
 
-int		ft_usleep(long ms, const t_philo *philo);
+int		ft_usleep(long ms);
 long	get_time(void);
 
 /* Simulation */
 
-int		start_sim(t_philo **philos);
+int		start_sim(t_philo *philos);
 int		wait_philos(int n_philos, const pid_t *pids);
 int		wait_turn(const t_philo *philo);
 int		take_forks(t_philo *philo);
 int		check_dead(const t_philo *philo);
 int		ft_sems_post(const t_philo *philo);
-int		sleeping(const t_philo *philo, t_philo **philos);
-void	kill_philo(t_philo **philos, int n_philo, sem_t *die);
+int		sleeping(const t_philo *philo, t_philo *philos);
+void	kill_philo(t_philo *philos, int n_philo, sem_t *die);
 int		eating(t_philo *philo);
-bool	wait_sems(const t_philo *philo, int *ret);
-int		set_time(t_philo **philos);
-bool	philo_actions(t_philo **philos, t_philo *philo, int *i, int *ret);
+int		set_time(t_philo *philos);
+bool	philo_actions(t_philo *philos, t_philo *philo, int *i, int *ret);
 void	*ft_monitoring(void *arg);
 int		thinking(const t_philo *philo);
 

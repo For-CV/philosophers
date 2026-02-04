@@ -19,22 +19,21 @@ int	ft_isspace(const int c)
 	return (0);
 }
 
-static int	skip_space(const char *s)
+static int	skip_space(const char *s, int *sign)
 {
 	int	i;
-	int	sign;
 
-	sign = 1;
+	*sign = 1;
 	i = 0;
 	while (ft_isspace(s[i]))
 		i++;
-	while (s[i] == '-' || s[i] == '+')
+	if (s[i] == '-' || s[i] == '+')
 	{
 		if (s[i] == '-')
-			sign = -sign;
+			*sign = -1;
 		i++;
 	}
-	return (i * sign);
+	return (i);
 }
 
 int	special_atoi(const char *s)
@@ -42,13 +41,16 @@ int	special_atoi(const char *s)
 	int	i;
 	int	r;
 	int	digit;
+	int	sign;
+	int	digits_found;
 
 	if (!s)
 		return (-1);
-	i = skip_space(s);
-	if (i < 0)
+	i = skip_space(s, &sign);
+	if (sign < 0)
 		return (-1);
 	r = 0;
+	digits_found = 0;
 	while (s[i] >= '0' && s[i] <= '9')
 	{
 		digit = s[i] - '0';
@@ -56,8 +58,9 @@ int	special_atoi(const char *s)
 			return (-1);
 		r = r * 10 + digit;
 		i++;
+		digits_found++;
 	}
-	if (i < ft_strlen(s))
+	if (digits_found == 0 || i < ft_strlen(s))
 		return (-1);
 	return (r);
 }

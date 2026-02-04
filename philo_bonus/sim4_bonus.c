@@ -19,21 +19,22 @@ void	*ft_monitoring(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		pthread_mutex_lock(&philo->meal_mtx);
+		ft_sem_wait(philo->meal_sem);
 		if (!philo->sim_active)
 		{
-			pthread_mutex_unlock(&philo->meal_mtx);
+			ft_sem_post(philo->meal_sem);
 			break ;
 		}
 		if (get_time() - philo->last_meal_ms > philo->table->t_to_die)
 		{
+			ft_sem_post(philo->meal_sem);
+			sem_wait(philo->die);
 			sem_wait(philo->printer);
 			printf("%ld ms %d died\n", get_time() - philo->start_ms,
 				philo->philo_id);
-			sem_unlink("/die");
 			exit(1);
 		}
-		pthread_mutex_unlock(&philo->meal_mtx);
+		ft_sem_post(philo->meal_sem);
 		if (usleep(1000))
 			break ;
 	}
@@ -41,13 +42,13 @@ void	*ft_monitoring(void *arg)
 }
 
 /* Imprime la muerte del filósofo, libera recursos y mata el proceso */
-void	kill_philo(t_philo **philos, const int n_philo, sem_t *die)
+void	kill_philo(t_philo *philos, const int n_philo, sem_t *die)
 {
 	t_philo	*philo;
 	int		status;
 
 	status = 0;
-	philo = philos[n_philo];
+	philo = &philos[n_philo];
 	philo->philo_id = n_philo + 1;
 	status = sem_wait(philo->printer);
 	printf("%ld ms %d died\n", get_time() - philo->start_ms, philo->philo_id);
@@ -61,27 +62,27 @@ void	kill_philo(t_philo **philos, const int n_philo, sem_t *die)
 
 /* Inicializa start_time y last_meal_t para todos los filósofos.
 @return 1 en caso de éxito, 0 en caso de error. */
-int	set_time(t_philo **philos)
+int	set_time(t_philo *philos)
 {
 	long	current_t;
 	int		n_philos;
 	int		i;
 
-	n_philos = philos[0]->table->n_philos;
+	n_philos = philos[0].table->n_philos;
 	i = 0;
 	current_t = get_time();
 	if (current_t < 0)
 		return (0);
 	while (i < n_philos)
 	{
-		philos[i]->start_ms = current_t;
-		philos[i]->last_meal_ms = current_t;
+		philos[i].start_ms = current_t;
+		philos[i].last_meal_ms = current_t;
 		i++;
 	}
 	return (1);
 }
 
-bool	philo_actions(t_philo **philos, t_philo *philo, int *i, int *ret)
+bool	philo_actions(t_philo *philos, t_philo *philo, int *i, int *ret)
 {
 	if (*i == INT_MAX)
 		*i = 0;

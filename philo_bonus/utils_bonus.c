@@ -23,11 +23,11 @@ int	wait_turn(const t_philo *philo)
 	delay = 0;
 	if ((philo->philo_id % 2) == 0)
 		delay = philo->table->t_to_eat / 2;
-	if ((philo->philo_id % 2) != 0)
-		delay = 0;
+	else
+		delay = 1;
 	if (delay <= 0)
 		return (0);
-	return (ft_usleep(delay, philo));
+	return (ft_usleep(delay));
 }
 
 /* @brief Calloc implementation with error printing */
@@ -70,27 +70,12 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-bool	wait_sems(const t_philo *philo, int *ret)
+void	init_name(char *buf)
 {
-	if (ft_sem_wait(philo->seats) < 0)
-	{
-		*ret = 1;
-		return (true);
-	}
-	if (check_dead(philo))
-	{
-		*ret = (ft_sem_post(philo->seats) + 1);
-		return (true);
-	}
-	if (ft_sem_wait(philo->forks) < 0)
-	{
-		*ret = (ft_sem_post(philo->seats) + 1);
-		return (true);
-	}
-	if (ft_sem_wait(philo->printer))
-	{
-		*ret = 1;
-		return (true);
-	}
-	return (false);
+	buf[0] = '/';
+	buf[1] = 'm';
+	buf[2] = 'e';
+	buf[3] = 'a';
+	buf[4] = 'l';
+	buf[5] = '_';
 }

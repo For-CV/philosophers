@@ -31,14 +31,13 @@ long	get_time(void)
 /* @brief Substitute of usleep, checking for philosophers deads every 200ms */
 /* @return 0 if everything went ok, -1 if a philosopher died, 1 if this 
 philosopher dies.*/
-int	ft_usleep(const long ms, const t_philo *philo)
+int	ft_usleep(const long ms)
 {
 	long	start;
 	long	error;
 	long	remaining_u;
 	long	elapsed;
 
-	(void)philo;
 	start = get_time();
 	while (1)
 	{

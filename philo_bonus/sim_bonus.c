@@ -32,9 +32,8 @@ int	thinking(const t_philo *philo)
 	return (dead);
 }
 
-static int	free_and_exit(t_philo **philos, sem_t *die, t_philo *philo, int ret)
+static int	free_and_exit(t_philo *philos, sem_t *die, int ret)
 {
-	pthread_mutex_destroy(&philo->meal_mtx);
 	free_child(philos);
 	sem_close(die);
 	if (ret == 1)
@@ -45,7 +44,7 @@ static int	free_and_exit(t_philo **philos, sem_t *die, t_philo *philo, int ret)
 /* @brief Executes philosophers actions: taking forks, eating, sleeping
 and thinking */
 /* @return to be decided upon */
-static int	philo_sim(t_philo **philos, const int n_philo, sem_t *die)
+static int	philo_sim(t_philo *philos, const int n_philo, sem_t *die)
 {
 	t_philo	*philo;
 	int		i;
@@ -53,27 +52,27 @@ static int	philo_sim(t_philo **philos, const int n_philo, sem_t *die)
 
 	i = 0;
 	ret = 0;
-	philo = philos[n_philo];
+	philo = &philos[n_philo];
 	philo->philo_id = n_philo + 1;
 	philo->sim_active = true;
 	if (pthread_create(&philo->monitor, NULL, ft_monitoring, philo))
 		exit(1);
-	if (wait_turn(philos[0]))
+	if (wait_turn(philo))
 		ret = 1;
 	while (!ret && i >= 0)
 	{
 		if (philo_actions(philos, philo, &i, &ret))
 			break ;
 	}
-	pthread_mutex_lock(&philo->meal_mtx);
+	ft_sem_wait(philo->meal_sem);
 	philo->sim_active = false;
-	pthread_mutex_unlock(&philo->meal_mtx);
+	ft_sem_post(philo->meal_sem);
 	if (pthread_join(philo->monitor, NULL))
 		write(2, "Error: pthread_join\n", 20);
-	return (free_and_exit(philos, die, philo, ret));
+	return (free_and_exit(philos, die, ret));
 }
 
-static bool	fork_philos(t_philo **philos, pid_t *pids, int i)
+static bool	fork_philos(t_philo *philos, pid_t *pids, int i)
 {
 	pid_t	pid;
 
@@ -84,7 +83,7 @@ static bool	fork_philos(t_philo **philos, pid_t *pids, int i)
 		return (true);
 	}
 	if (pid == 0)
-		philo_sim(philos, i, (*philos)->die);
+		philo_sim(philos, i, philos->die);
 	pids[i] = pid;
 	return (false);
 }
@@ -94,7 +93,7 @@ in another function, merged with the ft_pid_error function), and forks once for
 each philosopher, then waits for each process. Liberates all resources of the
 father */
 /* RETURN: 0 if everything went ok, 1 for any failure */
-int	start_sim(t_philo **philos)
+int	start_sim(t_philo *philos)
 {
 	int		i;
 	int		n_philos;
@@ -103,7 +102,7 @@ int	start_sim(t_philo **philos)
 	if (!set_time(philos))
 		return (1);
 	i = 0;
-	n_philos = philos[i]->table->n_philos;
+	n_philos = philos[i].table->n_philos;
 	pids = (pid_t *)ft_calloc(n_philos, sizeof(pid_t));
 	if (!pids)
 		return (write(2, "Error: malloc\n", 14), 1);

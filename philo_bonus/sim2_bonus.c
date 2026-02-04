@@ -12,31 +12,11 @@
 
 #include "philo_bonus.h"
 
-/* @brief Checks if any philosopher has died and prints this philosopher's dead
- if true. */
-/* @return -1 if another philosopher has died, 1 if this philosopher dies 
-while checking dead, else 0 */
+/* @brief No-op check since simulation relies on parent kill and printer lock */
+/* @return 0 */
 int	check_dead(const t_philo *philo)
 {
-	sem_t	*s;
-	long	time;
-
-	errno = 0;
-	time = get_time();
-	if (time == -1)
-		return (-1);
-	s = sem_open("/die", 0, 0, 0);
-	if (s == SEM_FAILED && errno == ENOENT)
-	{
-		if (time > LONG_MAX)
-			printf("%ld ms %d died\n", time - philo->start_ms, philo->philo_id);
-		return (-1);
-	}
-	if (s != SEM_FAILED)
-	{
-		if (ft_sem_close(s))
-			return (-1);
-	}
+	(void)philo;
 	return (0);
 }
 
@@ -45,26 +25,30 @@ corresponding error messages */
 /* @return 0 if everything went ok, 1 if any sem_wait error */
 static int	ft_sems_wait(const t_philo *philo)
 {
-	int	ret;
+	long	t;
 
-	if (wait_sems(philo, &ret))
-		return (ret);
-	printf("%ld ms %d has taken a fork\n", get_time() - philo->start_ms,
-		philo->philo_id);
-	ft_sem_post(philo->printer);
-	if (ft_sem_wait(philo->forks) < 0)
-		return (ft_sem_post(philo->forks) + ft_sem_post(philo->seats) + 1);
-	if (ft_sem_wait(philo->printer))
+	if (ft_sem_wait(philo->seats))
 		return (1);
-	printf("%ld ms %d has taken a fork\n", get_time() - philo->start_ms,
+	if (ft_sem_wait(philo->forks))
+	{
+		ft_sem_post(philo->seats);
+		return (1);
+	}
+	t = get_time();
+	ft_sem_wait(philo->printer);
+	printf("%ld ms %d has taken a fork\n", t - philo->start_ms,
 		philo->philo_id);
 	ft_sem_post(philo->printer);
-	if (sem_wait(philo->printer) < 0)
+	if (ft_sem_wait(philo->forks))
 	{
 		ft_sem_post(philo->forks);
-		ft_sem_post(philo->forks);
-		return (ft_sem_post(philo->seats), 1);
+		ft_sem_post(philo->seats);
+		return (1);
 	}
+	ft_sem_wait(philo->printer);
+	printf("%ld ms %d has taken a fork\n", t - philo->start_ms,
+		philo->philo_id);
+	ft_sem_post(philo->printer);
 	return (0);
 }
 
@@ -78,7 +62,6 @@ int	ft_sems_post(const t_philo *philo)
 	ret = ft_sem_post(philo->forks);
 	ret += ft_sem_post(philo->forks);
 	ret += ft_sem_post(philo->seats);
-	ret += ft_sem_post(philo->printer);
 	return (ret);
 }
 
@@ -95,19 +78,19 @@ int	take_forks(t_philo *philo)
 		return (1);
 	if (ft_sems_wait(philo))
 		return (1);
-	dead = check_dead(philo);
-	pthread_mutex_lock(&philo->meal_mtx);
-	if (!dead && (start_t - philo->last_meal_ms <= philo->table->t_to_die))
+	ft_sem_wait(philo->meal_sem);
+	if (start_t - philo->last_meal_ms <= philo->table->t_to_die)
 	{
-		pthread_mutex_unlock(&philo->meal_mtx);
-		dead = ft_sem_post(philo->printer);
+		ft_sem_post(philo->meal_sem);
+		dead = 0;
 	}
 	else
 	{
-		pthread_mutex_unlock(&philo->meal_mtx);
-		ft_sem_post(philo->printer);
-		if (sem_unlink("/die") < 0 && errno != ENOENT)
-			write(2, "Error: sem_unlink\n", 19);
+		ft_sem_post(philo->meal_sem);
+		sem_wait(philo->die);
+		sem_wait(philo->printer);
+		printf("%ld ms %d died\n", start_t - philo->start_ms, philo->philo_id);
+		exit(1);
 	}
 	return (dead);
 }
@@ -115,27 +98,20 @@ int	take_forks(t_philo *philo)
 /* @brief Simulation of sleeping time_to_sleep milliseconds */
 /* @return 0 if everything went ok, 1 if any semaphore operation failed
 or checked that a philosopher died  */
-int	sleeping(const t_philo *philo, t_philo **philos)
+int	sleeping(const t_philo *philo, t_philo *philos)
 {
 	int		dead;
 	int		philo_id;
 	long	time;
 
+	(void)philos;
 	philo_id = philo->philo_id;
 	time = get_time();
-	dead = ft_sem_wait(philo->printer);
-	if (time < 0 || dead)
-		kill_philo(philos, philo->philo_id - 1, philo->die);
-	dead += check_dead(philo);
-	if (dead)
-		return (ft_sem_post(philo->printer), dead);
+	if (ft_sem_wait(philo->printer))
+		return (1);
 	printf("%ld ms %d is sleeping\n", time - philo->start_ms, philo_id);
 	dead = ft_sem_post(philo->printer);
-	if (ft_usleep(philo->table->t_to_sleep, philo))
-	{
-		if (sem_unlink("/die") < 0 && errno != ENOENT)
-			write(2, "Error: sem_unlink\n", 19);
+	if (ft_usleep(philo->table->t_to_sleep))
 		dead = 1;
-	}
 	return (dead);
 }

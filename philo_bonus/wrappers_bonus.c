@@ -36,7 +36,7 @@ sem_t	*ft_sem_open(const char *name, const int oflag, const mode_t mode,
 
 	if (!name || !oflag)
 		return (write(2, "Error: sem_open\n", 16), SEM_FAILED);
-	if (mode || value)
+	if (oflag & O_CREAT)
 		error = sem_open(name, oflag, mode, value);
 	else
 		error = sem_open(name, oflag);
