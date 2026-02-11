@@ -6,7 +6,7 @@
 /*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/02 13:04:16 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/07 16:19:18 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ int		start_sim(t_philo *philos);
 int		wait_philos(int n_philos, const pid_t *pids);
 int		wait_turn(const t_philo *philo);
 int		take_forks(t_philo *philo);
-int		check_dead(const t_philo *philo);
 int		ft_sems_post(const t_philo *philo);
 int		sleeping(const t_philo *philo, t_philo *philos);
 int		eating(t_philo *philo);

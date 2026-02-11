@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sim_bonus.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 23:49:25 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/07 16:18:23 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,14 @@ philosopher dies. */
 int	thinking(const t_philo *philo)
 {
 	long	t;
-	int		dead;
 
 	t = get_time();
 	if (ft_sem_wait(philo->printer))
 		return (1);
-	dead = check_dead(philo);
-	if (!dead)
-		printf("%ld ms %d is thinking\n", t - philo->start_ms, philo->philo_id);
+	printf("%ld ms %d is thinking\n", t - philo->start_ms, philo->philo_id);
 	if (ft_sem_post(philo->printer))
 		return (1);
-	return (dead);
+	return (0);
 }
 
 static int	free_and_exit(t_philo *philos, sem_t *die, int ret)

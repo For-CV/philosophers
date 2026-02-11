@@ -7,7 +7,7 @@ DEBUG_NAME = tester
 DEBUG_CFLAGS = $(CFLAGS) -g -O0
 
 # Bonus
-SRC = philo_bonus.c\
+SRC = main.c\
 	utils_bonus.c\
 	parsing_bonus.c\
 	sim_bonus.c\

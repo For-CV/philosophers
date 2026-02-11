@@ -3,22 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   sim2_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/06 23:49:25 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/07 16:18:37 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
-
-/* @brief No-op check since simulation relies on parent kill and printer lock */
-/* @return 0 */
-int	check_dead(const t_philo *philo)
-{
-	(void)philo;
-	return (0);
-}
 
 /* @brief Semwaits for seats, two forks and printer, writing
 corresponding error messages */
