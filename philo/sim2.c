@@ -105,13 +105,13 @@ int	take_both_forks(const t_philo *philo)
 {
 	if (take_forks(philo, philo->fork1))
 	{
-		ft_mutex_unlock(philo->forks[philo->fork1]);
+		ft_mutex_unlock(&philo->forks[philo->fork1]);
 		return (1);
 	}
 	if (take_forks(philo, philo->fork2))
 	{
-		ft_mutex_unlock(philo->forks[philo->fork1]);
-		ft_mutex_unlock(philo->forks[philo->fork2]);
+		ft_mutex_unlock(&philo->forks[philo->fork1]);
+		ft_mutex_unlock(&philo->forks[philo->fork2]);
 		return (1);
 	}
 	return (0);

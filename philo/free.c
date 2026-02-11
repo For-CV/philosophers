@@ -35,11 +35,9 @@ void	free_mtxs(t_mtxs *mtxs, int n_philos)
 	if (!mtxs)
 		return ;
 	i = 0;
-	while (i < n_philos)
+	while (mtxs->forks && i < n_philos)
 	{
-		if (mtxs->forks[i])
-			ft_mutex_destroy(mtxs->forks[i]);
-		free(mtxs->forks[i]);
+		ft_mutex_destroy(&mtxs->forks[i]);
 		i++;
 	}
 	free(mtxs->forks);

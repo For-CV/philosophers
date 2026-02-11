@@ -59,7 +59,7 @@ typedef struct s_philo
 	int				*dead;
 	int				fork1;
 	int				fork2;
-	pthread_mutex_t	**forks;
+	pthread_mutex_t	*forks;
 	pthread_mutex_t	*printer;
 	pthread_mutex_t	*dead_m;
 	pthread_mutex_t	*finished_mtx;
@@ -74,7 +74,7 @@ typedef struct s_mtxs
 	pthread_mutex_t	*printer;
 	pthread_mutex_t	*last_meal_mtx;
 	pthread_mutex_t	*finished_mtx;
-	pthread_mutex_t	**forks;
+	pthread_mutex_t	*forks;
 }	t_mtxs;
 
 /* Utils and parsing */

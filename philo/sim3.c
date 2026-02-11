@@ -68,7 +68,7 @@ int	take_forks(const t_philo *philo, const int fork)
 	long	current_t;
 	int		dead;
 
-	if (ft_mutex_lock(philo->forks[fork]))
+	if (ft_mutex_lock(&philo->forks[fork]))
 		return (1);
 	current_t = get_time();
 	dead = check_dead(philo, current_t);

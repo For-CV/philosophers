@@ -46,8 +46,8 @@ static inline int	eating(t_philo *philo)
 		print_action(philo, EAT);
 		dead = ft_usleep(philo->t_to_eat, philo);
 	}
-	ret = ft_mutex_unlock(philo->forks[philo->fork2]);
-	ret += ft_mutex_unlock(philo->forks[philo->fork1]);
+	ret = ft_mutex_unlock(&philo->forks[philo->fork2]);
+	ret += ft_mutex_unlock(&philo->forks[philo->fork1]);
 	return (dead + ret);
 }
 
@@ -79,7 +79,7 @@ void	*philo_sim(void *arg)
 	{
 		take_forks(philo, philo->fork1);
 		ft_usleep(philo->t_to_die, philo);
-		ft_mutex_unlock(philo->forks[philo->fork1]);
+		ft_mutex_unlock(&philo->forks[philo->fork1]);
 		return (NULL);
 	}
 	if (philo->philo_id % 2 == 0)

@@ -60,8 +60,8 @@ static void	create_mtxs(t_mtxs *mtxs, const int n_philos)
 	mtxs->printer = make_mtx();
 	mtxs->last_meal_mtx = make_mtx();
 	mtxs->finished_mtx = make_mtx();
-	mtxs->forks = (pthread_mutex_t **) ft_calloc(
-			n_philos, sizeof(pthread_mutex_t *));
+	mtxs->forks = (pthread_mutex_t *) ft_calloc(
+			n_philos, sizeof(pthread_mutex_t));
 }
 
 // Crea e inicia los mutexes.
@@ -71,17 +71,13 @@ int	init_mtxs(t_mtxs *mtxs, const int n_philos)
 	int	i;
 
 	create_mtxs(mtxs, n_philos);
-	i = 0;
-	while (mtxs->forks && i < n_philos)
-		mtxs->forks[i++] = NULL;
 	if (!mtxs->dead_m || !mtxs->printer || !mtxs->last_meal_mtx || !mtxs->forks
 		|| !mtxs->finished_mtx)
 		return (free_mtxs(mtxs, 0), 1);
 	i = 0;
 	while (i < n_philos)
 	{
-		mtxs->forks[i] = make_mtx();
-		if (!mtxs->forks[i])
+		if (pthread_mutex_init(&mtxs->forks[i], NULL))
 		{
 			free_mtxs(mtxs, i);
 			return (1);
