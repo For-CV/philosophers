@@ -6,7 +6,7 @@
 /*   By: rafael <rafael@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/14 14:14:04 by rafael           ###   ########.fr       */
+/*   Updated: 2026/02/14 14:25:55 by rafael           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,7 @@ int	take_forks(t_philo *philo)
 	t = get_time();
 	printf("%ld ms %d has taken a fork\n", t - philo->start_ms,
 		philo->philo_id);
-	ft_sem_post(philo->printer);
-	return (0);
+	return (ft_sem_post(philo->printer), 0);
 }
 
 /* @brief Simulation of sleeping time_to_sleep milliseconds */
