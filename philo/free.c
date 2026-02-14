@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 15:44:19 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/07 16:40:51 by rafael-m         ###   ########.fr       */
+/*   Created: 2025/12/05 18:29:12 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 23:18:19 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
 // Recoge los filósofos una vez han terminado.
-void	ft_collect_philos(pthread_t *threads, t_philo **philos)
+void	collect_philos(const pthread_t *threads, const t_philo *philos)
 {
 	int		dead;
 	int		n_philos;
 
 	dead = 0;
-	n_philos = (*philos)->n_philos;
+	n_philos = philos->n_phil;
 	while (dead < n_philos)
 	{
 		ft_pthread_join(threads[dead]);
@@ -28,18 +28,16 @@ void	ft_collect_philos(pthread_t *threads, t_philo **philos)
 }
 
 // Libera y destruye los mutexes, libera y destruye n_philos forks.
-void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
+void	free_mtxs(t_mtxs *mtxs, int n_philos)
 {
 	int	i;
 
 	if (!mtxs)
 		return ;
 	i = 0;
-	while (i < n_philos)
+	while (mtxs->forks && i < n_philos)
 	{
-		if (mtxs->forks[i])
-			ft_mutex_destroy(mtxs->forks[i]);
-		free(mtxs->forks[i]);
+		ft_mutex_destroy(&mtxs->forks[i]);
 		i++;
 	}
 	free(mtxs->forks);
@@ -60,21 +58,11 @@ void	ft_free_mtxs(t_mtxs *mtxs, int n_philos)
 // Libera las estructuras de cada filósofo y el array, incluidos
 // los mutexes. El flag initiated es para saber si los mutexes
 // printer y dead_m están iniciados con pthread_mute_init.
-void	ft_free_philos(t_philo **philo)
+void	free_philos(t_philo *philo)
 {
-	int		n_philos;
-	int		i;
-
-	if (!philo || !(*philo))
+	if (!philo)
 		return ;
-	n_philos = philo[0]->n_philos;
-	i = 0;
-	if (philo[0]->threads)
-		free(philo[0]->threads);
-	while (i < n_philos)
-	{
-		free(philo[i]);
-		i++;
-	}
+	if (philo->threads)
+		free(philo->threads);
 	free(philo);
 }

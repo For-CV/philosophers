@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 15:55:38 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/08 19:47:07 by rafael-m         ###   ########.fr       */
+/*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
+/*   Updated: 2026/02/07 16:19:18 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <unistd.h>
 # include <sys/time.h>
 # include <sys/wait.h>
+# include <signal.h>
+# include <pthread.h>
 # include <string.h>
 # include <stdint.h>
 # include <limits.h>
@@ -25,9 +27,11 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <stdbool.h>
 
-# define ERR_MSG "Arguments expected: number_of_philosophers, time_to_die,\
- time_to_eat, time_to_sleep [number_of_times_each_philosopher_must_eat]\n"
+# define ERR_MSG "Arguments expected: number_of_philosophers | time_to_die,\
+ time_to_eat | time_to_sleep | [number_of_times_each_philosopher_must_eat]\n"
+# define ERR "number_philo must be a positive int < 100000\n"
 # define FORK 1
 # define EAT 2
 # define SLEEP 3
@@ -47,60 +51,65 @@ typedef struct s_table
 	int				n_to_eat;
 }	t_table;
 
-/* Structure relevant to each fhilosopher */
+/* Structure relevant to each philosopher */
 typedef struct s_philo
 {
-	int		philo_id;
-	t_table	*table;
-	long	last_meal_ms;
-	long	start_ms;
-	int		meals_eaten;
-	sem_t	*forks;
-	sem_t	*printer;
-	sem_t	*die;
-	sem_t	*seats;
+	sem_t			*forks;
+	sem_t			*printer;
+	sem_t			*die;
+	sem_t			*seats;
+	t_table			*table;
+	long			last_meal_ms;
+	long			start_ms;
+	int				meals_eaten;
+	int				philo_id;
+	pthread_t		monitor;
+	sem_t			*meal_sem;
+	bool			sim_active;
 }	t_philo;
 
 /* Utils and parsing */
 
-void	*ft_calloc(const size_t nmemb, const size_t size);
-int		ft_special_atoi(const char *s);
-int		ft_parse(t_table *table, char **argv);
+void	*ft_calloc(size_t nmemb, size_t size);
+int		special_atoi(const char *s);
+int		parser(t_table *table, char **argv);
 int		ft_strlen(const char *s);
 void	ft_putnbr(int n);
+void	init_name(char *buf);
 
-/* Fuctions wrappers */
+/* Functions wrappers */
 
 int		ft_sem_wait(sem_t *sem);
-sem_t	*ft_sem_open(const char *name, int oflag,
-			mode_t mode, unsigned int value);
+sem_t	*ft_sem_open(const char *name, int oflag, mode_t mode,
+			unsigned int value);
 int		ft_sem_post(sem_t *sem);
 int		ft_sem_close(sem_t *sem);
 int		ft_sem_unlink(const char *name);
 
 /* Freeing allocated memory and liberating resources */
 
-void	ft_free_when_creating(t_philo **philos, sem_t *forks);
-void	ft_free_philos(t_philo **philos);
-void	ft_free_child(t_philo **philos);
-void	ft_close_forks(sem_t *forks, const int child);
+void	free_when_creating(t_philo *philos, sem_t *forks);
+void	free_philos(t_philo *philos);
+void	free_child(t_philo *philos);
+void	close_forks(sem_t *forks, int child);
 
 /* Time relative */
 
-int		ft_usleep(long ms, const t_philo *philo);
-long	ft_get_time(void);
+int		ft_usleep(long ms);
+long	get_time(void);
 
 /* Simulation */
 
-int		ft_start_sim(t_philo **philos);
-int		ft_wait_philos(const int n_philos);
-int		ft_wait_turn(const t_philo *philo);
-int		ft_takeforks(const t_philo *philo);
-int		ft_check_dead(const t_philo *philo);
+int		start_sim(t_philo *philos);
+int		wait_philos(int n_philos, const pid_t *pids);
+int		wait_turn(const t_philo *philo);
+int		take_forks(t_philo *philo);
 int		ft_sems_post(const t_philo *philo);
-int		ft_sleep(const t_philo *philo, t_philo **philos);
-void	ft_kill_philo(t_philo **philos, int n_philo, sem_t *die);
-int		ft_eat(t_philo *philo);
-void	ft_exit_child(t_philo **philos, sem_t *die);
+int		sleeping(const t_philo *philo, t_philo *philos);
+int		eating(t_philo *philo);
+int		set_time(t_philo *philos);
+bool	philo_actions(t_philo *philos, t_philo *philo, int *i, int *ret);
+void	*ft_monitoring(void *arg);
+int		thinking(const t_philo *philo);
 
 #endif

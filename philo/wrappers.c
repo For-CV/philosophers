@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wrappers.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 15:46:16 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/07 15:46:18 by rafael-m         ###   ########.fr       */
+/*   Created: 2025/12/06 21:21:36 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/06 21:43:55 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	ft_mutex_destroy(pthread_mutex_t *mutex)
 }
 
 // pthread_join wrapper, returns its errors.
-int	ft_pthread_join(pthread_t thread)
+int	ft_pthread_join(const pthread_t thread)
 {
 	int	ret;
 

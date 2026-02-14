@@ -1,17 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 15:46:03 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/07 17:48:27 by rafael-m         ###   ########.fr       */
+/*   Created: 2025/12/05 18:29:12 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/05 19:38:55 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
+// Pequeño retardo inicial para escalonar a los filósofos según su orden
+// de creación. @return 1 en caso de éxito, 0 si hay error.
+int	wait_turn(const t_philo *philo)
+{
+	long	delay;
+
+	if (philo->table->n_philos <= 1)
+		return (0);
+	delay = 0;
+	if ((philo->philo_id % 2) == 0)
+		delay = philo->table->t_to_eat / 2;
+	else
+		delay = 1;
+	if (delay <= 0)
+		return (0);
+	return (ft_usleep(delay));
+}
+
+/* @brief Calloc implementation with error printing */
 void	*ft_calloc(const size_t nmemb, const size_t size)
 {
 	void	*result;
@@ -38,6 +57,7 @@ void	*ft_calloc(const size_t nmemb, const size_t size)
 	return (result);
 }
 
+/* @brief Strlen implementation, but more secure */
 int	ft_strlen(const char *s)
 {
 	int	i;
@@ -50,23 +70,12 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-void	ft_putlng_fd(long n, int fd)
+void	init_name(char *buf)
 {
-	long	nbr;
-
-	if (n == LONG_MIN)
-	{
-		write(fd, "-9223372036854775808", 20);
-		return ;
-	}
-	if (n < 0)
-	{
-		write (fd, "-", 1);
-		n = -n;
-	}
-	nbr = n;
-	if (nbr > 9)
-		ft_putlng_fd(n / 10, fd);
-	nbr = (n % 10) + 48;
-	write (fd, &nbr, 1);
+	buf[0] = '/';
+	buf[1] = 'm';
+	buf[2] = 'e';
+	buf[3] = 'a';
+	buf[4] = 'l';
+	buf[5] = '_';
 }

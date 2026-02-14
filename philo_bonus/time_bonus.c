@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 15:56:19 by rafael-m          #+#    #+#             */
-/*   Updated: 2025/12/08 20:17:51 by rafael-m         ###   ########.fr       */
+/*   Created: 2025/12/05 18:29:12 by rafael-m          #+#    #+#             */
+/*   Updated: 2025/12/05 18:29:12 by rafael-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 /* @brief Gets the current time since Epoch in miliseconds */
 /* @return The (long)time in miliseconds or -1 on error*/
-long	ft_get_time(void)
+long	get_time(void)
 {
 	struct timeval	tv;
-	unsigned int	time;
+	long			time;
 
 	if (gettimeofday(&tv, NULL))
 	{
@@ -31,27 +31,25 @@ long	ft_get_time(void)
 /* @brief Substitute of usleep, checking for philosophers deads every 200ms */
 /* @return 0 if everything went ok, -1 if a philosopher died, 1 if this 
 philosopher dies.*/
-int	ft_usleep(const long ms, const t_philo *philo)
+int	ft_usleep(const long ms)
 {
 	long	start;
-	long	elapsed;
-	long	remaining_u;
 	long	error;
+	long	remaining_u;
+	long	elapsed;
 
-	start = ft_get_time();
+	start = get_time();
 	while (1)
 	{
-		if (ft_check_dead(philo))
-			return (-1);
-		elapsed = ft_get_time();
+		elapsed = get_time();
 		if (elapsed < 0)
 			return (-1);
 		elapsed -= start;
 		if (elapsed >= ms)
 			break ;
-		remaining_u = (ms - elapsed) / 1000;
-		if (remaining_u > 100)
-			error = usleep(100);
+		remaining_u = (ms - elapsed) * 1000;
+		if (remaining_u > 500)
+			error = usleep(500);
 		else
 			error = usleep(remaining_u);
 		if (error)
