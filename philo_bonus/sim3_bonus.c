@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sim3_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael <rafael@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/01/14 13:01:53 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/14 14:05:35 by rafael           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,6 @@ static void	set_meal_time(t_philo *philo, long t, int *dead)
 	*dead = ft_usleep(philo->table->t_to_eat);
 }
 
-static void	ft_kill_philo(const t_philo *philo, const long t)
-{
-	sem_wait(philo->die);
-	sem_wait(philo->printer);
-	printf("%ld ms %d died\n", t - philo->start_ms, philo->philo_id);
-	exit(1);
-}
-
 static void	print_eating(t_philo *philo, const long t, int *dead)
 {
 	if (ft_sem_wait(philo->printer))
@@ -66,7 +58,7 @@ static void	print_eating(t_philo *philo, const long t, int *dead)
 		return ;
 	}
 	printf("%ld ms %d is eating\n", t - philo->start_ms, philo->philo_id);
-	*dead = ft_sem_post(philo->printer);
+	ft_sem_post(philo->printer);
 	set_meal_time(philo, t, dead);
 	*dead += ft_sem_post(philo->forks);
 	*dead += ft_sem_post(philo->forks);
@@ -74,8 +66,8 @@ static void	print_eating(t_philo *philo, const long t, int *dead)
 }
 
 /* @brief Simulation of eating time_to_eat milliseconds */
-/* @return 0 if everything went ok. 1 if any semaphore operation failed,
- gettimeofday failed or time between lunches is bigger than time_to_die. */
+/* @return 0 if everything went ok. 1 if any semaphore operation failed
+ or gettimeofday failed. */
 int	eating(t_philo *philo)
 {
 	long	t;
@@ -84,13 +76,6 @@ int	eating(t_philo *philo)
 	t = get_time();
 	if (t < 0)
 		return (1);
-	ft_sem_wait(philo->meal_sem);
-	if (t - philo->last_meal_ms > philo->table->t_to_die)
-	{
-		ft_sem_post(philo->meal_sem);
-		ft_kill_philo(philo, t);
-	}
-	ft_sem_post(philo->meal_sem);
 	dead = 0;
 	print_eating(philo, t, &dead);
 	return (dead);

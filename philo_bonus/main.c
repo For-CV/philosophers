@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_bonus.c                                      :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42madrid.com>   +#+  +:+       +#+        */
+/*   By: rafael <rafael@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/01/16 01:34:01 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/14 14:01:52 by rafael           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	init_sem(t_philo *philos, sem_t *forks)
 
 	die = ft_sem_open("/die", O_CREAT, 0644, 1);
 	seats = ft_sem_open("/seats", O_CREAT, 0644,
-			(philos->table->n_philos + 1) / 2);
+			(philos->table->n_philos) / 2);
 	printer = ft_sem_open("/printer", O_CREAT, 0644, 1);
 	if (die == SEM_FAILED || seats == SEM_FAILED || printer == SEM_FAILED)
 		return (free_philos(philos), 1);

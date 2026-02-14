@@ -3,19 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   sim2_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rafael-m <rafael-m@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rafael <rafael@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/06 23:49:25 by rafael-m          #+#    #+#             */
-/*   Updated: 2026/02/07 16:18:37 by rafael-m         ###   ########.fr       */
+/*   Updated: 2026/02/14 14:14:04 by rafael           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-/* @brief Semwaits for seats, two forks and printer, writing
-corresponding error messages */
-/* @return 0 if everything went ok, 1 if any sem_wait error */
-static int	ft_sems_wait(const t_philo *philo)
+/* @brief Sem_posts for seats and two forks, writing
+corresponding error messages if necessary */
+/* @return 0 if everything went ok, 1 if any sem_post error */
+int	ft_sems_post(const t_philo *philo)
+{
+	int	ret;
+
+	ret = ft_sem_post(philo->forks);
+	ret += ft_sem_post(philo->forks);
+	ret += ft_sem_post(philo->seats);
+	return (ret);
+}
+
+/* Simulation of taking two forks (with sem_wait) */
+/* @return 0 if everything went ok, 1 if any semaphore operation failed */
+int	take_forks(t_philo *philo)
 {
 	long	t;
 
@@ -38,53 +50,11 @@ static int	ft_sems_wait(const t_philo *philo)
 		return (1);
 	}
 	ft_sem_wait(philo->printer);
+	t = get_time();
 	printf("%ld ms %d has taken a fork\n", t - philo->start_ms,
 		philo->philo_id);
 	ft_sem_post(philo->printer);
 	return (0);
-}
-
-/* @brief Sem_posts for seats and two forks, writing
-corresponding error messages if necessary */
-/* @return 0 if everything went ok, 1 if any sem_post error */
-int	ft_sems_post(const t_philo *philo)
-{
-	int	ret;
-
-	ret = ft_sem_post(philo->forks);
-	ret += ft_sem_post(philo->forks);
-	ret += ft_sem_post(philo->seats);
-	return (ret);
-}
-
-/* Simulation of taking two forks (with sem_wait) */
-/* @return 0 if everything went ok, 1 if any semaphore operation failed
-or checked that a philosopher died */
-int	take_forks(t_philo *philo)
-{
-	long	start_t;
-	int		dead;
-
-	start_t = get_time();
-	if (start_t < 0)
-		return (1);
-	if (ft_sems_wait(philo))
-		return (1);
-	ft_sem_wait(philo->meal_sem);
-	if (start_t - philo->last_meal_ms <= philo->table->t_to_die)
-	{
-		ft_sem_post(philo->meal_sem);
-		dead = 0;
-	}
-	else
-	{
-		ft_sem_post(philo->meal_sem);
-		sem_wait(philo->die);
-		sem_wait(philo->printer);
-		printf("%ld ms %d died\n", start_t - philo->start_ms, philo->philo_id);
-		exit(1);
-	}
-	return (dead);
 }
 
 /* @brief Simulation of sleeping time_to_sleep milliseconds */

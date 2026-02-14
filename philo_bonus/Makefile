@@ -72,6 +72,4 @@ fclean: clean
 
 re: fclean all
 
-
-
 .PHONY: all check clean fclean re philo_tsan
